@@ -22,6 +22,7 @@ class SpritesheetManager:
         self.sprites = {}
 
     def load_spritesheet(self, key, json_file):
+        data = {}
         with open(json_file, 'r') as f:
             data = json.load(f)
 
@@ -41,3 +42,21 @@ class SpritesheetManager:
 
     def get_sprite(self, key, index):
         return self.sprites[key][index]
+
+    def remove_duplicate_sprites( json_file):
+      with open(json_file, 'r') as f:
+            data = json.load(f)
+      unique_sprite_data = []
+
+      for sprite_data in data['sprites']:
+          if sprite_data not in unique_sprite_data:
+              unique_sprite_data.append(sprite_data)
+
+
+      data['sprites'] = unique_sprite_data
+
+
+      with open(json_file, 'w') as f:
+          json.dump(data, f, indent=2)
+
+

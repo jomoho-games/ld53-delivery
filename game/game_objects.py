@@ -3,10 +3,58 @@ from pygame.math import Vector2 as vec
 import pygame
 import bisect
 import random
+from .alchemy import *
 
-MAX_VEL = 200
+MAX_VEL = 300
+
+NUM_ELEMENTS = len(alchemy_game_data['elements'])
+
+
+def init_obj(t, x, y, sprites):
+    if t == "ship":
+        s = random.randint(25,50)
+        obj = GameObject(pygame.transform.scale(sprites.get_sprite(
+            "ships", random.randint(2, 40)),  (s,s)), x, y, t=t)
+        obj.static = False
+        obj.resting = False
+        obj.velocity = vec(random.randint(-5, 5) or 5,
+                           random.randint(-5, 5) or 5)
+        obj.velocity.normalize_ip()
+        obj.velocity *= random.randint(5, 50)
+
+    if t == "clump":
+        i = random.randint(0, 120)
+        s = random.randint(15,30)
+        obj = GameObject(pygame.transform.scale(
+            sprites.get_sprite("clumps", i), (s,s)), x, y, t=t)
+        obj.static = True
+        obj.resting = True
+        obj.angle=random.randint(0,360)
+        obj.element = random.randint(0,NUM_ELEMENTS)
+
+    if t == "city":
+        city_sprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
+        i = random.randint(0, len(city_sprites))
+        obj = GameObject(pygame.transform.scale_by(
+            sprites.get_sprite("points", random.randint(1,30)),4), x, y, t=t)
+        obj.static = True
+        obj.resting = True
+        obj.rect.x -= obj.rect.width/2
+        obj.rect.y -= obj.rect.height/2
+
+    return obj
+
+def init_city(city, sprites, location):
+    obj = init_obj("city", city['pos'].x,city['pos'].y, sprites)
+    obj.name = location['name']
+    obj.quests = location['quests']
+
+    return obj
+
+
 class GameObject:
-    def __init__(self, image, x, y, id=None):
+    def __init__(self, image, x, y, t=None, id=None):
         self.id = id
         self.tag = ""
         self.image = image
@@ -50,14 +98,17 @@ class GameObject:
             if d == vec(0, 0):
                 d = vec(random.randint(-5, 5) or 5, random.randint(-5, 5) or 5)
             self.velocity = d.normalize()
-            self.velocity *=  -50 #random.randint(-30, -10)
+            self.velocity *= -50  # random.randint(-30, -10)
         self._collided = True
 
     def clamp_velocity(self):
+        max_vel = MAX_VEL
+        if self.id == "player":
+          max_vel *=2
         l = self.velocity.length()
-        if l > MAX_VEL:
+        if l > max_vel:
             self.velocity.normalize_ip()
-            self.velocity *= MAX_VEL
+            self.velocity *= max_vel
 
     def ready(self):
         self._updated = False
@@ -76,6 +127,7 @@ def update_objects(objects, dt, id_indices):
         obj = objects[index]
         if not obj.resting and not obj._updated:
             # Remove the object from the sorted list
+            old_index = index
             objects.pop(index)
 
             # Update the object's position
@@ -92,6 +144,14 @@ def update_objects(objects, dt, id_indices):
             if obj.id is not None:
                 id_indices[obj.id] = new_index
                 # print("new index", obj.id, new_index)
+
+             # Update the indices of objects with IDs
+            for other_id, other_index in id_indices.items():
+                if other_id != obj.id:
+                    if new_index <= other_index < old_index:
+                        id_indices[other_id] = other_index + 1
+                    elif old_index < other_index <= new_index:
+                        id_indices[other_id] = other_index - 1
 
         index += 1
 

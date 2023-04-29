@@ -14,9 +14,6 @@ pg.font.init()
 
 pg.mixer.init()
 
-rad2deg = 180.0/math.pi
-deg2rad = math.pi/180.0
-
 WIDTH, HEIGHT = 1280, 720
 FPS = 30
 screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -27,15 +24,12 @@ cam_rect = pg.Rect(screen_rect)
 ui_manager = pygame_gui.UIManager((WIDTH, HEIGHT), 'assets/theme.json')
 sprites = SpritesheetManager()
 sprites.load_spritesheet("ships", "assets/sheets/sheet01.json")
+sprites.load_spritesheet("points", "assets/sheets/sheet_nice.json")
+sprites.load_spritesheet("clumps", "assets/sheets/sheet_clumps.json")
 
-
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
-GREEN = (0, 250, 0)
 
 GAME_OBJECT_COUNT = 20000
+LEVEL = 'level_1'
 
 BORDER = pg.Rect(WIDTH//2 - 5, 0, 10, HEIGHT)
 
@@ -52,53 +46,66 @@ BG = pg.transform.scale(pg.image.load(
 
 elementlist = [(k, f"#{k}") for k in element_colors.keys()]
 ui_element_select = gui.UISelectionList(pg.Rect(10, 50, 174, 400),
-                    item_list=list(elementlist),
-                    manager=ui_manager,
-                    object_id="elem_select",
-                    allow_multi_select=False)
-
-def draw_fps(screen,fps):
-    # screen.blit(BG, (0, 0))
-    # pg.draw.rect(WIN, BLACK, BORDER)
-
-    fps_text = std_font.render(f"FPS: {fps:.2f}", True, WHITE)
-    # yellow_health_text = HEALTH_FONT.render(
-    #     f"Health: {yellow_health}", True, YELLOW)
-
-    screen.blit(fps_text, (WIDTH - fps_text.get_width() - 10, 10))
-    # screen.blit(yellow_health_text, (10, 10))
+                                        item_list=list(elementlist),
+                                        manager=ui_manager,
+                                        object_id="elem_select",
+                                        allow_multi_select=False)
 
 
 image_manager = ImageManager()
 
+
 def populate_objects():
-    objects = [GameObject(pg.transform.scale(sprites.get_sprite("ships", random.randint(2, 40)), (20, 20)), random.randint(WIDTH*-10, WIDTH*10),
-                      random.randint(HEIGHT*-10, HEIGHT*10)) for _ in range(GAME_OBJECT_COUNT)]
-    objects[0] = GameObject(pg.transform.scale(sprites.get_sprite("ships", 0), (30, 30)), 0,0,"player")
+
+    objects = [init_obj("ship", random.randint(WIDTH*-10, WIDTH*10), random.randint(
+        HEIGHT*-10, HEIGHT*10), sprites) for _ in range(int(GAME_OBJECT_COUNT/6))]
+    objects.extend([init_obj("clump", random.randint(WIDTH*-10, WIDTH*10), random.randint(
+        HEIGHT*-10, HEIGHT*10), sprites) for _ in range(int(GAME_OBJECT_COUNT/3))])
+
+    locations = alchemy_quests[LEVEL]["locations"]
+    cities = generate_random_locations(len(locations), pg.Rect(
+        WIDTH*-10, HEIGHT*-10, WIDTH*20, HEIGHT*20), WIDTH*2, WIDTH*5)
+    city_objs = [init_city(city, sprites, locations[i])
+                 for i, city in enumerate(cities)]
+    for i,c in enumerate(cities):
+        c["name"] = locations[i]["name"]
+        c["quests"] = locations[i]["quests"]
+    for c in city_objs:
+        c.name_txt = big_font.render(f"{c.name}", True, WHITE)
+    print(cities)
+    print(city_objs)
+    objects.extend(city_objs)
+
+    objects[0] = GameObject(pg.transform.scale(
+        sprites.get_sprite("ships", 0), (40, 40)), 0, 0, id="player")
     objects[0].resting = False
     objects[0].static = False
     objects.sort()
     id_indices = populate_id_indices(objects)
-    return objects, id_indices;
+    return objects, id_indices, cities
+
+
+DEV_MODE = True
+
+
 
 async def main():
-
+    game_mode = "game"
     quit_please = False
     red_health = 10
     yellow_health = 10
-    objects, id_indices = populate_objects()
+    objects, id_indices, cities = populate_objects()
     print("player", objects[id_indices["player"]])
 
     clock = pg.time.Clock()
     run = True
-    debug_collisions = True
-    show_objects = True
-
+    debug_collisions = DEV_MODE
     ship_pos = vec(20, 20)
+    cam_rect.x -= WIDTH/2
+    cam_rect.y -= HEIGHT/2
 
     while run:
         dt = clock.tick(FPS)/1000.0
-        fps = 1.0/dt
         for event in pg.event.get():
             if event.type == pg.QUIT or quit_please:
                 run = False
@@ -106,22 +113,24 @@ async def main():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     quit_please = True
+                if event.key == pg.K_i:
+                    game_mode="inventory"
+                if event.key == pg.K_g:
+                    game_mode="game"
+                if DEV_MODE:
+                    if event.key == pg.K_r:
+                        objects = populate_objects()
+                    if event.key == pg.K_p:
+                        compare_slice_performance(objects, cam_rect)
+                    if event.key == pg.K_t:
+                        call_timing(objects, cam_rect)
+                    if event.key == pg.K_c:
+                        debug_collisions = not debug_collisions
 
-
-                if event.key == pg.K_r:
-                    objects = populate_objects()
-                if event.key == pg.K_p:
-                    compare_slice_performance(objects, cam_rect)
-                if event.key == pg.K_t:
-                    call_timing(objects, cam_rect)
-                if event.key == pg.K_c:
-                    debug_collisions = not debug_collisions
-                if event.key == pg.K_h:
-                    show_objects = not show_objects
-                if event.key == pg.K_PAGEUP:
-                    GAME_OBJECT_COUNT += 1000
-                if event.key == pg.K_PAGEDOWN:
-                    GAME_OBJECT_COUNT -= 1000
+                    if event.key == pg.K_PAGEUP:
+                        GAME_OBJECT_COUNT += 1000
+                    if event.key == pg.K_PAGEDOWN:
+                        GAME_OBJECT_COUNT -= 1000
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 # if event.ui_element == hello_button1:
@@ -141,91 +150,14 @@ async def main():
             cam_rect.x -= 10
         if pressed[pg.K_RIGHT] or pressed[pg.K_d]:
             cam_rect.x += 10
-
-
-
-        player:GameObject = objects[id_indices["player"]]
-        p = vec(pg.mouse.get_pos()) + vec(cam_rect.topleft)
-        d = (p - vec(player.rect.center))
-        angle = rad2deg * math.atan2(d.x, d.y)
-        l = d.length()
-        if l > 20.0:
-            d.normalize_ip()
-        else:
-            d *= dt
-        if not player._collided:
-            player.velocity = d*(2+(l/5))
-
-
-        # Clear the screen
-        screen.fill((0, 0, 0))
-        def draw_object(obj):
-            p = (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
-            lp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
-            screen.blit(obj.image, p)
-            pg.draw.line(screen, YELLOW, lp, lp+obj.velocity )
-
-        # Draw game objects
-        if show_objects:
-            for_objects_in_view_rect(objects, cam_rect, lambda obj:
-                                    draw_object(obj)
-                                    )
-
-        screen.blit(pg.transform.rotate(ship, angle), ship_pos)
-        update_objects(objects, dt, id_indices)
-
-        # Perform Sweep and Prune
-        potential_pairs = sweep_and_prune(
-            visible_objects_slice(objects, cam_rect))
-
-        # Check for AABB and pixel-perfect collisions
-        i = 0
-        coll_count = 0
-        coll_count_pp = 0
-        contacts = []
-
-        for obj1, obj2 in potential_pairs:
-            if debug_collisions:
-                txt = f"{i},"
-                obj1.tag += txt
-                obj2.tag += txt
-
-            if aabb_collision(obj1, obj2):
-                coll_count += 1
-                normal = calculate_collision_normal(obj1, obj2)
-                contact = Contact(obj1, obj2, normal)
-
-                obj1.on_collision(obj2, contact)
-                obj2.on_collision(obj1, contact)
-
-                if pixel_perfect_collision(obj1, obj2):
-                    coll_count_pp += 1
-                    r1 = pg.Rect(obj1.rect.x-cam_rect.x, obj1.rect.y-cam_rect.y, obj1.rect.width, obj1.rect.height)
-                    r2 = pg.Rect(obj2.rect.x-cam_rect.x, obj2.rect.y-cam_rect.y, obj2.rect.width, obj2.rect.height)
-                    if debug_collisions:
-                        pg.draw.rect(screen, WHITE, r1, width=1)
-                        pg.draw.rect(screen, WHITE, r2, width=1)
-                else:
-                    if debug_collisions:
-                        pg.draw.rect(screen, RED, r1, width=1)
-                        pg.draw.rect(screen, RED, r2, width=1)
-            i += 1
-
-        if debug_collisions:
-            for obj in objects:
-                txt = std_font.render(obj.tag, True, YELLOW)
-                obj.tag = ""
-                screen.blit(txt, (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y))
-
-        txt = big_font.render(
-            f"obj:{len(objects)} pairs:{len(potential_pairs)} coll: {coll_count} coll_pp: {coll_count_pp}", True, GREEN)
-        screen.blit(txt, (0, 0))
-        txt = big_font.render(
-            f"fps: {1.0/dt:.2f} dt: {dt:.4f}", True, GREEN)
-        screen.blit(txt, (0, 30))
-
-
-        draw_fps(screen, fps)
+        if game_mode == "game":
+            core_loop(screen,dt, cam_rect, objects, id_indices,
+                    cities, std_font, big_font, WIDTH, HEIGHT, debug_collisions)
+        if game_mode == "inventory":
+            # Clear the screen
+            screen.fill(BG_COLOR)
+            txt = big_font.render(f"Inventory", True, GREEN)
+            screen.blit(txt, (WIDTH/2 - txt.get_width()/2, 30))
         ui_manager.draw_ui(screen)
         pg.display.update()
         await asyncio.sleep(0)
