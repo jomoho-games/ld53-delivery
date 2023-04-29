@@ -47,7 +47,8 @@ def core_loop(screen, dt, cam_rect, objects, id_indices, cities, std_font, big_f
       p = (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
       lp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
       screen.blit(pg.transform.rotate(obj.image, angle), p)
-      pg.draw.line(screen, YELLOW, lp, lp+obj.velocity)
+      if debug_collisions:
+        pg.draw.line(screen, YELLOW, lp, lp+obj.velocity)
       if hasattr(obj, 'name_txt'):
           screen.blit(obj.name_txt, lp+vec(0, -30))
 
@@ -66,8 +67,11 @@ def core_loop(screen, dt, cam_rect, objects, id_indices, cities, std_font, big_f
       if debug_collisions:
           pg.draw.line(screen, GREEN, pp, pr)
       if ll > r:
-          txt = big_font.render(f"{ll}", True, WHITE)
-          screen.blit(txt, pp+(dd*70))
+          txt = std_font.render(f"{c['name']}: {ll}", True, WHITE)
+          tp = pp+(dd*100)
+          tp.x -= txt.get_width()/2
+          tp.y -= txt.get_height()/2
+          screen.blit(txt, tp)
       # else:
       #     txt = big_font.render(f"{ll}", True, RED)
       #     screen.blit(txt, pp+(dd*70))

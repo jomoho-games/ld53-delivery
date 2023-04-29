@@ -5,6 +5,15 @@
       "hovered_bg": "rgb(30, 40, 60),#65696e,rgb(50, 60, 70),90deg"
     }
   },
+  "#craft_beer": {
+    "colours": {
+      "normal_bg": "rgb(255, 69, 0),rgb(255, 106, 51),90",
+      "hovered_bg": "rgb(178, 48, 0),rgb(142, 38, 0),90",
+      "normal_text": "rgb(255, 255, 255)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+
   "#air": {
     "colours": {
       "normal_bg": "rgb(230, 230, 230),rgb(235, 235, 235),90",

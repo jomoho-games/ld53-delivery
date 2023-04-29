@@ -37,7 +37,7 @@ def init_obj(t, x, y, sprites):
                         16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
         i = random.randint(0, len(city_sprites))
         obj = GameObject(pygame.transform.scale_by(
-            sprites.get_sprite("points", random.randint(1,30)),4), x, y, t=t)
+            sprites.get_sprite("points", random.randint(0,34)),4), x, y, t=t)
         obj.static = True
         obj.resting = True
         obj.rect.x -= obj.rect.width/2
@@ -53,8 +53,10 @@ def init_city(city, sprites, location):
     return obj
 
 
-class GameObject:
+class GameObject(pygame.sprite.Sprite):
     def __init__(self, image, x, y, t=None, id=None):
+        # Call the parent class (Sprite) constructor
+        pygame.sprite.Sprite.__init__(self)
         self.id = id
         self.tag = ""
         self.image = image

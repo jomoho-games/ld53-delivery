@@ -1,4 +1,6 @@
 import random
+import math
+
 alchemy_game_data = {
     'elements': [
         'earth', 'water', 'fire', 'air', 'metal', 'wood', 'light', 'darkness', 'electricity', 'ice'
@@ -10,9 +12,12 @@ alchemy_game_data = {
         {'input': ['earth', 'fire'], 'output': 'lava'},
         {'input': ['air', 'water'], 'output': 'mist'},
         {'input': ['earth', 'air'], 'output': 'dust'},
+
         {'input': ['water', 'metal'], 'output': 'rust'},
         {'input': ['earth', 'wood'], 'output': 'fossil'},
         {'input': ['fire', 'wood'], 'output': 'charcoal'},
+        {'input': ['steam', 'metal'], 'output': 'boiler'},
+
         {'input': ['fire', 'light'], 'output': 'laser'},
         {'input': ['air', 'darkness'], 'output': 'void'},
         {'input': ['air', 'electricity'], 'output': 'static'},
@@ -20,7 +25,6 @@ alchemy_game_data = {
         {'input': ['water', 'ice'], 'output': 'snow'},
         {'input': ['fire', 'ice'], 'output': 'slush'},
         {'input': ['mud', 'fire'], 'output': 'brick'},
-        {'input': ['steam', 'metal'], 'output': 'boiler'},
         {'input': ['laser', 'electricity'], 'output': 'plasma'},
         {'input': ['steam', 'earth'], 'output': 'geyser'},
         {'input': ['mud', 'wood'], 'output': 'swamp'},
@@ -45,14 +49,14 @@ alchemy_game_data = {
 }
 
 
-def attempt_combination(input_elements, skill_level, discovered_combinations, alchemy_data):
+def attempt_combination(input_elements, skill_level, alchemy_data):
     # Check if the user has enough elements for the combination
-    for element, amount in input_elements.items():
-        if amount <= 0:
-            return {'status': 'error', 'message': f'Not enough {element} to attempt combination'}
+    # for element, amount in input_elements.items():
+    #     if amount <= 0:
+    #         return {'status': 'error', 'message': f'Not enough {element} to attempt combination'}
 
     # Find the recipe for the given input_elements
-    input_set = set(input_elements.keys())
+    input_set = set([k for k, n in input_elements.items() if n > 0])
     recipe = None
     for r in alchemy_data['recipes']:
         if set(r['input']) == input_set:
@@ -60,8 +64,8 @@ def attempt_combination(input_elements, skill_level, discovered_combinations, al
             break
 
     # Check if the recipe is found and if it's already discovered
-    if recipe is None or recipe['output'] not in discovered_combinations:
-        return {'status': 'error', 'message': 'Unknown or undiscovered combination'}
+    if recipe is None:  # or recipe['output'] not in discovered_combinations:
+        return {'status': 'error', 'message': 'Unknown combination'}
 
     # Apply efficiency based on skill level
     efficiency = 1
@@ -74,14 +78,18 @@ def attempt_combination(input_elements, skill_level, discovered_combinations, al
     # Adjust the amount of resources used based on efficiency
     used_resources = {}
     for element, amount in input_elements.items():
-        used_amount = int(amount * (1 / efficiency))
-        used_resources[element] = used_amount
+        used_amount = int(math.ceil(amount * (1 / efficiency)))
+        if used_amount > 0:
+            used_resources[element] = used_amount
 
     # Calculate the success chance and determine if the combination is successful
     success_chance = random.uniform(0, 1)
+    amount = min(used_resources.values())
     if success_chance <= efficiency:
         result = {'status': 'success',
-                  'output': recipe['output'], 'used_resources': used_resources}
+                  'output': recipe['output'],
+                  'message': f'Combination succeeded: {amount} {recipe["output"]} created!',
+                  'amount': amount, 'used_resources': used_resources}
     else:
         result = {'status': 'failure', 'message': 'Combination attempt failed',
                   'used_resources': used_resources}
