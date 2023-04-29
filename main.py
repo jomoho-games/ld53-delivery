@@ -76,6 +76,7 @@ def populate_objects():
                       random.randint(HEIGHT*-10, HEIGHT*10)) for _ in range(GAME_OBJECT_COUNT)]
     objects[0] = GameObject(pg.transform.scale(sprites.get_sprite("ships", 0), (30, 30)), 0,0,"player")
     objects[0].resting = False
+    objects[0].static = False
     objects.sort()
     id_indices = populate_id_indices(objects)
     return objects, id_indices;
@@ -158,11 +159,16 @@ async def main():
 
         # Clear the screen
         screen.fill((0, 0, 0))
+        def draw_object(obj):
+            p = (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
+            lp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
+            screen.blit(obj.image, p)
+            pg.draw.line(screen, YELLOW, lp, lp+obj.velocity )
 
         # Draw game objects
         if show_objects:
             for_objects_in_view_rect(objects, cam_rect, lambda obj:
-                                    screen.blit(obj.image, (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y))
+                                    draw_object(obj)
                                     )
 
         screen.blit(pg.transform.rotate(ship, angle), ship_pos)
