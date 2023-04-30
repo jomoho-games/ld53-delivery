@@ -35,7 +35,7 @@ ui_manager.preload_fonts([
 
 sprites = SpritesheetManager()
 sprites.load_spritesheet("ships", "assets/sheets/sheet01.json")
-sprites.load_spritesheet("points", "assets/sheets/sheet_nice.json")
+sprites.load_spritesheet("points", "assets/sheets/sheet_nice_large.json")
 sprites.load_spritesheet("clumps", "assets/sheets/sheet_clumps.json")
 
 std_font = pg.font.Font("assets/fonts/SHPinscher-Regular.otf", 16)
@@ -88,7 +88,7 @@ class AlchemizerWin:
                                                    object_id="input_select",
                                                    allow_multi_select=False)
 
-        self.status_text = gui.UILabel(pg.Rect(w/2-200, h-220, 600, 50),
+        self.status_text = gui.UILabel(pg.Rect(w/2-120, h-210, 600, 50),
                                        manager=ui_manager,
                                        container=self.win,
                                        text="Run the alchemizer using input elements",
@@ -105,8 +105,10 @@ class AlchemizerWin:
                                                 object_id="close_button",
                                                 text="Close",
                                                 )
-        self.spr = sprites.get_sprite("points", 22)
-        self.img = gui.UIImage(pg.Rect(w/2, 50, self.spr.get_width()*2, self.spr.get_height()*2),
+        self.spr = sprites.get_sprite("points", 18)
+        desired_width = 400
+        spr_scale = desired_width / self.spr.get_width()
+        self.img = gui.UIImage(pg.Rect(w/2, 50, self.spr.get_width()*spr_scale, self.spr.get_height()*spr_scale),
                                self.spr,
                                manager=ui_manager,
                                container=self.win,
@@ -135,9 +137,9 @@ class CityWin:
                                 object_id="#inv_window",
                                 window_display_title=f"{self.name}")
         quest_list = [(f'{k["title"]}:', f"#{city['city_id']}${i}")
-                       for i,k in enumerate(city['quests'])]
+                      for i, k in enumerate(city['quests'])]
 
-        self.ui_element_select = gui.UISelectionList(pg.Rect(w-250, 50, 200, h-350),
+        self.ui_element_select = gui.UISelectionList(pg.Rect(w-250, 50, 200, h-200),
                                                      manager=ui_manager,
                                                      container=self.win,
                                                      item_list=list(
@@ -150,27 +152,62 @@ class CityWin:
                                        container=self.win,
                                        text="Choose a delivery",
                                        )
-        self.craft_btn = gui.ui_button.UIButton(pg.Rect(w/2+50, h-120, 200, 50),
+        self.text_output_box = gui.UITextBox("<font size=20>Title Text</font>\n<br><br> Description etc.<br> requirements: 2 gold, 5 fish",
+                                pg.Rect(400, 50, 500,h-200),
+                                container=self.win)
+
+        self.delivery_btn = gui.ui_button.UIButton(pg.Rect(400, h-120, 200, 50),
                                                 manager=ui_manager,
                                                 container=self.win,
-                                                text="Delivery!",
-                                                object_id="#delivery",
+                                                text="Accept!",
+                                                object_id="#accept_delivery",
                                                 )
-        self.close_btn = gui.ui_button.UIButton(pg.Rect(w-200, h-120, 120, 50),
+        # self.craft_btn.disable()
+        self.close_btn = gui.ui_button.UIButton(pg.Rect(w-250, h-120, 200, 50),
                                                 manager=ui_manager,
                                                 container=self.win,
                                                 object_id="close_button",
                                                 text="Close",
                                                 )
         self.spr = sprites.get_sprite("points", city['sprite_id'])
-        self.img = gui.UIImage(pg.Rect(50, 50, self.spr.get_width()*2, self.spr.get_height()*2),
+        desired_width = 340  # Set this to your desired width
+        max_height = h-120
+        # Calculate the scale value
+        spr_scale = desired_width / self.spr.get_width()
+
+        # Check if the scaled height is greater than the maximum height
+        if int(self.spr.get_height() * spr_scale) > max_height:
+            # Adjust the scale value based on the maximum height
+            spr_scale = max_height / self.spr.get_height()
+
+        print("City sprite_id:", city['sprite_id'])
+        self.img = gui.UIImage(pg.Rect(30, 50, self.spr.get_width()*spr_scale, self.spr.get_height()*spr_scale),
                                self.spr,
                                manager=ui_manager,
                                container=self.win,
                                )
 
+    def press_delivery_btn(self, obj_man):
+        q = self.city["quests"][self.selected_id]
+        obj_man.open_quests.append((q, self.city['city_id'], self.selected_id))
+        q['status'] = 'accepted'
+        self.delivery_btn.disable()
+        self.select_quest(self.selected_id)
+
     def select_quest(self, id):
-        self.status_text.set_text( f'{self.city["quests"][id]["title"]}')
+        self.selected_id=id
+        # "<font size=20>Title Text</font>\n<br><br> Description etc.<br> requirements: 2 gold, 5 fish"
+        q = self.city["quests"][id]
+        req = "\n\nRequired:\n"
+        for r,v in q['required'].items():
+            req += f'{r}: {v} \n'
+        stat = "Accept Delivery to Start working on it"
+        self.delivery_btn.enable()
+        if q['status'] == 'accepted':
+            self.delivery_btn.disable()
+            stat = "Gather Elements and Alchemize them to fulfill the delivery!"
+        self.text_output_box.set_text(f'<font size=20>{q["title"]}</font>\n\n{q["description"]}<br>{req}\n\nStatus:\n{stat}')
+        self.status_text.set_text(f'{self.city["quests"][id]["title"]}')
 
     def update_input(self):
         input_list = [(f'{k}: {n}', f"#{k}")
@@ -206,7 +243,7 @@ class MenuWin:
                                )
 
 
-START_GAME_MODE = "alchemizer"
+START_GAME_MODE = "city"
 image_manager = ImageManager()
 
 
@@ -253,20 +290,47 @@ class ObjManager:
         self.objects[0].resting = False
         self.objects[0].static = False
         self.objects[0].damage = 5
-        self.objects[0].collected = []
         self.objects[0].city_timeout = 0
+        self.objects[0].angle =180
+        self.objects[0].collected = []
 
+        self.objects.sort()
+        self.id_indices = populate_id_indices(self.objects)
+
+        self.reset_progress()
+
+    def reset_progress(self):
         self.inventory = {
             "fire": 100,
             "water": 100,
             "earth": 100,
             "air": 100,
         }
-
-        self.objects.sort()
-        self.id_indices = populate_id_indices(self.objects)
         self.fadeout = 0
         self.fadeout_time = 0
+
+        quest_mat = []
+        for k, l in alchemy_quests.items():
+            for loc in l['locations']:
+                for q in loc['quests']:
+                    q['done'] = False
+                    q['status'] = 'open'
+                    q['reward'] = sum([v for k, v in q['required'].items()])
+                    quest_mat.extend([k for k, v in q['required'].items()])
+                # print(loc['quests'])
+        self.open_quests = []
+
+        if DEV_MODE:
+            quest_mat = set(quest_mat)
+            uniq_mat = gather_unique_materials(alchemy_game_data)
+            req_mat = collect_required_materials(quest_mat, alchemy_game_data['recipes'])
+            print("\n DO required materials match receipes? \n",  req_mat == uniq_mat)
+            print("quest_mat", quest_mat,)
+            print("uniq_mat", uniq_mat,)
+            print("req_mat", req_mat,)
+            print("missing for quests:\n",req_mat -uniq_mat,)
+            print("superflous receipes:\n", uniq_mat-req_mat,)
+
 
     def in_transition(self):
         return self.fadeout < self.fadeout_time
@@ -285,7 +349,10 @@ async def main():
         ui_alchemizer_win.win.kill()
         ui_alchemizer_win = None
     ui_main = None
-    ui_city_win = None
+    ui_city_win = CityWin(obj_man.cities[0], obj_man.inventory, ui_manager, WIDTH, HEIGHT)
+    if game_mode != "city":
+        ui_city_win.win.kill()
+        ui_city_win = None
 
     quit_please = False
     red_health = 10
@@ -320,7 +387,7 @@ async def main():
                     ui_alchemizer_win = AlchemizerWin(
                         obj_man.inventory, ui_manager, WIDTH, HEIGHT)
                 if event.mode == "city":
-                    ui_city_win = CityWin( obj_man.cities[event.city],
+                    ui_city_win = CityWin(obj_man.cities[event.city],
                                           obj_man.inventory, ui_manager, WIDTH, HEIGHT)
 
             if DEV_MODE:
@@ -335,7 +402,7 @@ async def main():
                         game_mode = "game"
 
                     if event.key == pg.K_r:
-                        obj_man =ObjManager()
+                        obj_man = ObjManager()
                     if event.key == pg.K_p:
                         compare_slice_performance(objects, cam_rect)
                     if event.key == pg.K_t:
@@ -364,6 +431,9 @@ async def main():
                     if ui_city_win != None:
                         ui_city_win.win.kill()
                         ui_city_win = None
+                if event.ui_object_id == '#inv_window.#accept_delivery':
+                    print("#accept_delivery")
+                    ui_city_win.press_delivery_btn(obj_man)
                 if event.ui_object_id == '#inv_window.#craft_beer':
                     print("craft")
                     res = attempt_combination(
@@ -374,8 +444,8 @@ async def main():
                     if res['status'] == 'success':
                         out_el = res['output']
                         if not out_el in obj_man.inventory:
-                            inventory[out_el] = 0
-                        inventory[out_el] += res['amount']
+                            obj_man.inventory[out_el] = 0
+                        obj_man.inventory[out_el] += res['amount']
                     if 'used_resources' in res:
                         for k in res['used_resources']:
                             ui_alchemizer_win.input_items[k] -= res['used_resources'][k]
@@ -402,7 +472,8 @@ async def main():
                     ui_alchemizer_win.update_input()
                     ui_alchemizer_win.update_inventory(obj_man.inventory)
                 if event.ui_object_id.startswith('#inv_window.quest_select'):
-                    city_id, quest_id = event.ui_object_id.split('.')[-1][1:].split("$")
+                    city_id, quest_id = event.ui_object_id.split(
+                        '.')[-1][1:].split("$")
                     city_id, quest_id = int(city_id), int(quest_id)
                     print(f"quest_select: '{city_id, quest_id }'")
                     ui_city_win.select_quest(quest_id)

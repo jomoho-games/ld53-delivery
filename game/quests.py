@@ -254,5 +254,148 @@ alchemy_quests = {
                 ]
             }
         ]
+    },
+    'level_5': {
+        'locations': [
+            {
+                'name': 'Electro City',
+                'quests': [
+                    {
+                        'title': 'Electrostatic Field Generator',
+                        'description': 'Electro City needs more static to power their electrostatic field generator. Deliver 20 units of static to the Electro City Generator Facility.',
+                        'required': {'static': 20}
+                    },
+                    {
+                        'title': 'Lightning Rod Installation',
+                        'description': 'Electro City is installing lightning rods and needs more lightning. Deliver 30 units of lightning to the Electro City Lightning Rod Distribution Center.',
+                        'required': {'lightning': 30}
+                    },
+                    {
+                        'title': 'Shockproof Armor Research',
+                        'description': 'Electro City is researching shockproof armor and needs more shock. Deliver 15 units of shock to the Electro City Research Lab.',
+                        'required': {'shock': 15}
+                    }
+                ]
+            },
+            {
+                'name': 'Shady Grove',
+                'quests': [
+                    {
+                        'title': 'Shadow Puppet Theater',
+                        'description': 'Shady Grove is hosting a shadow puppet theater and needs more shadow. Deliver 25 units of shadow to the Shady Grove Puppet Theater.',
+                        'required': {'shadow': 25}
+                    },
+                    {
+                        'title': 'Shadow Tonic Production',
+                        'description': 'Shady Grove needs more shadow tonics for their annual Shadow Festival. Deliver 30 units of shadow and 20 units of herbs to the Shady Grove Apothecary.',
+                        'required': {'shadow': 30, 'herbs': 20}
+                    },
+                    {
+                        'title': 'Darkness Illumination Research',
+                        'description': 'Shady Grove is researching the illumination of darkness. Deliver 25 units of darkness and 15 units of light to the Shady Grove Research Center.',
+                        'required': {'darkness': 25, 'light': 15}
+                    }
+                ]
+            },
+            {
+                'name': 'Swamplandia',
+                'quests': [
+                    {
+                        'title': 'Swamplandia Boardwalk Expansion',
+                        'description': 'Swamplandia is expanding their boardwalk and needs more swamp materials. Deliver 40 units of swamp to the Swamplandia Boardwalk Construction Site.',
+                        'required': {'swamp': 40}
+                    },
+                    {
+                        'title': 'Swampfire Lanterns',
+                        'description': 'Swamplandia needs more swampfire lanterns for their Swampfire Festival. Deliver 30 units of swampfire and 20 units of glowstone to the Swamplandia Lantern Workshop.',
+                        'required': {'swampfire': 30, 'glowstone': 20}
+                    },
+                    {
+                        'title': 'Swamplandia Mud Baths',
+                        'description': 'Swamplandia is opening a new mud bath spa and needs more mud. Deliver 50 units of mud and 20 units of herbs to the Swamplandia Mud Bath Spa.',
+                        'required': {'mud': 50, 'herbs': 20}
+                    }
+                ]
+            }
+        ]
+    },
+    'level_6': {
+        'locations': [
+            {
+                'name': 'Geyser Springs',
+                'quests': [
+                    {
+                        'title': 'Geothermal Energy Research',
+                        'description': 'Geyser Springs is researching geothermal energy and needs more geysers. Deliver 25 units of geyser to the Geyser Springs Geothermal Research Center.',
+                        'required': {'geyser': 25}
+                    },
+                    {
+                        'title': 'Geyser-Powered Turbine Maintenance',
+                        'description': 'Geyser Springs needs more steam to maintain their geyser-powered turbines. Deliver 30 units of steam to the Geyser Springs Turbine Maintenance Facility.',
+                        'required': {'steam': 30}
+                    },
+                    {
+                        'title': 'Hot Springs Restoration',
+                        'description': 'Geyser Springs is restoring their hot springs and needs more lava. Deliver 20 units of lava to the Geyser Springs Hot Springs Restoration Site.',
+                        'required': {'lava': 20}
+                    }
+                ]
+            },
+            {
+                'name': 'Brickton',
+                'quests': [
+                    {
+                        'title': 'Brickton Construction Project',
+                        'description': 'Brickton is building new structures and needs more bricks. Deliver 50 units of brick to the Brickton Construction Site.',
+                        'required': {'brick': 50}
+                    },
+                    {
+                        'title': 'Brickton Infrastructure Improvement',
+                        'description': 'Brickton needs more steel to improve their infrastructure. Deliver 40 units of steel to the Brickton Infrastructure Improvement Site.',
+                        'required': {'steel': 40}
+                    },
+                    {
+                        'title': 'Brickton Decorative Sculptures',
+                        'description': 'Brickton is creating decorative sculptures and needs more crystal. Deliver 15 units of crystal to the Brickton Sculpture Workshop.',
+                        'required': {'crystal': 15}
+                    }
+                ]
+            },
+            {
+                'name': 'Final Challenge Island',
+                'quests': [
+                    {
+                        'title': 'Elemental Balance',
+                        'description': 'Final Challenge Island needs a balance of elemental materials. Deliver 10 units each of fire, water, earth, and air to the Elemental Balance Shrine.',
+                        'required': {'fire': 10, 'water': 10, 'earth': 10, 'air': 10}
+                    },
+                    {
+                        'title': 'Restore the Purity Fountain',
+                        'description': 'Final Challenge Island needs more purity to restore the Purity Fountain. Deliver 20 units of purity to the Purity Fountain Restoration Site.',
+                        'required': {'purity': 20}
+                    },
+                    {
+                        'title': 'Activate the Rainbow Bridge',
+                        'description': 'Final Challenge Island needs more rainbow to activate the Rainbow Bridge. Deliver 15 units of rainbow to the Rainbow Bridge Activation Site.',
+                        'required': {'rainbow': 15}
+                    },
+                    {
+                        'title': 'Recharge the Plasma Core',
+                        'description': 'Final Challenge Island needs more plasma to recharge their Plasma Core. Deliver 25 units of plasma to the Plasma Core Recharge Station.',
+                        'required': {'plasma': 25}
+                    },
+                    {
+                        'title': 'Power the Swampfire Beacon',
+                        'description': 'Final Challenge Island needs more swampfire to power the Swampfire Beacon. Deliver 30 units of swampfire to the Swampfire Beacon Activation Site.',
+                        'required': {'swampfire': 30}
+                    }
+                ]
+            }
+        ]
     }
 }
+def can_fulfill_quest(inventory, quest_requirements):
+    for material, required_amount in quest_requirements.items():
+        if inventory.get(material, 0) < required_amount:
+            return False
+    return True

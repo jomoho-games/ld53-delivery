@@ -1,17 +1,18 @@
 import random
 import math
 
+
 class GameProgress:
     def __init__(self):
-      self.inventory = {}
-      self.skill_level = 1
-      self.unlocked = []
-      self.refresh_unlocked()
-      self.xp = 0;
+        self.inventory = {}
+        self.skill_level = 1
+        self.unlocked = []
+        self.refresh_unlocked()
+        self.xp = 0
 
     def add_xp(self, xp):
-      self.xp += xp
-      self.skill_level = self.calculate_skill_level()
+        self.xp += xp
+        self.skill_level = self.calculate_skill_level()
 
     def calculate_skill_level(self):
         level = 1
@@ -30,11 +31,11 @@ class GameProgress:
         return 100 * (2 ** (level - 1))
 
     def refresh_unlocked(self):
-      self.unlocked = []
-      for s in alchemy_game_data['skill_progression']:
-        if self.skill_level >= s['level']:
-          self.unlocked.extend(s['unlocks'])
-      self.unlocked = list(set(self.unlocked))
+        self.unlocked = []
+        for s in alchemy_game_data['skill_progression']:
+            if self.skill_level >= s['level']:
+                self.unlocked.extend(s['unlocks'])
+        self.unlocked = list(set(self.unlocked))
 
 
 alchemy_game_data = {
@@ -84,6 +85,68 @@ alchemy_game_data = {
         {'level': 5, 'efficiency': 1.5, 'bonus': 'discover_new_combinations'}
     ]
 }
+
+
+updated_recipes = [
+    {'input': ['earth', 'water'], 'output': 'mud'},
+    {'input': ['fire', 'air'], 'output': 'smoke'},
+    {'input': ['water', 'fire'], 'output': 'steam'},
+    {'input': ['earth', 'fire'], 'output': 'lava'},
+    {'input': ['air', 'water'], 'output': 'mist'},
+    {'input': ['earth', 'air'], 'output': 'dust'},
+
+    {'input': ['water', 'metal'], 'output': 'rust'},
+    {'input': ['earth', 'wood'], 'output': 'herbs'},
+    {'input': ['fire', 'wood'], 'output': 'charcoal'},
+    {'input': ['steam', 'metal'], 'output': 'gears'},
+
+    {'input': ['fire', 'light'], 'output': 'glowstone'},
+    {'input': ['air', 'darkness'], 'output': 'shadow'},
+    {'input': ['air', 'electricity'], 'output': 'sound'},
+    {'input': ['water', 'electricity'], 'output': 'thunder'},
+    {'input': ['water', 'ice'], 'output': 'snow'},
+    {'input': ['fire', 'ice'], 'output': 'rainbow'},
+
+    {'input': ['mud', 'fire'], 'output': 'brick'},
+    {'input': ['laser', 'electricity'], 'output': 'plasma'},
+    {'input': ['steam', 'earth'], 'output': 'geyser'},
+    {'input': ['mud', 'wood'], 'output': 'swamp'},
+
+    {'input': ['lava', 'water'], 'output': 'stone'},
+    {'input': ['laser', 'metal'], 'output': 'steel'},
+    {'input': ['static', 'shock'], 'output': 'lightning'},
+    {'input': ['plasma', 'earth'], 'output': 'crystal'},
+    {'input': ['mist', 'ice'], 'output': 'wind'},
+    {'input': ['snow', 'wood'], 'output': 'life'},
+    {'input': ['snow', 'air'], 'output': 'frost'},
+    {'input': ['slush', 'earth'], 'output': 'purity'},
+    {'input': ['swamp', 'fire'], 'output': 'swampfire'}
+]
+
+
+alchemy_game_data['recipes'] = updated_recipes
+
+
+def gather_unique_materials(alchemy_game_data):
+    unique_materials = set(alchemy_game_data['elements'])
+
+    for recipe in alchemy_game_data['recipes']:
+        unique_materials.update(recipe['input'])
+        unique_materials.add(recipe['output'])
+
+    return unique_materials
+
+
+def collect_required_materials(quest_materials, recipes):
+    materials = set(quest_materials)
+
+    for material in quest_materials:
+        for recipe in recipes:
+            if recipe['output'] == material:
+                materials.update(recipe['input'])
+                break
+
+    return materials
 
 
 def attempt_combination(input_elements, skill_level, alchemy_data):

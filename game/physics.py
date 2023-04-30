@@ -65,7 +65,7 @@ def find_first_object_greater_than_x(objects, x):
 
 def for_objects_in_view_rect(objects, view_rect, fn):
     # Find the index of the first object with an x-coordinate larger than the camera rect's left edge
-    start_index = max(0,find_first_object_greater_than_x(objects, view_rect.left)-200)
+    start_index = max(0,find_first_object_greater_than_x(objects, view_rect.left)-400)
 
     # Iterate over the objects that fit into the camera rect
     for obj in objects[start_index:]:

@@ -19,43 +19,45 @@ def draw_fps(screen, fps, std_font, WIDTH):
     screen.blit(fps_text, (WIDTH - fps_text.get_width() - 10, 10))
     # screen.blit(yellow_health_text, (10, 10))
 
+
 def draw_rect_alpha(surface, color, rect):
     shape_surf = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
     pygame.draw.rect(shape_surf, color, shape_surf.get_rect())
     surface.blit(shape_surf, rect)
 
-def core_loop(screen, dt,pressed, cam_rect, obj_man, std_font, big_font, WIDTH, HEIGHT, debug_collisions):
+
+def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH, HEIGHT, debug_collisions):
 
     fps = 1.0/dt
     player = None
     if 'player' in obj_man.id_indices:
-      player: GameObject = obj_man.objects[obj_man.id_indices["player"]]
-      # p = vec(pg.mouse.get_pos()) + vec(cam_rect.topleft)
-      # d = (p - vec(player.rect.center))
-      # angle = rad2deg * math.atan2(d.x, d.y)
-      # l = d.length()
-      # if l > 20.0:
-      #     d.normalize_ip()
-      # else:
-      #     d *= dt
-      # if not player._collided:
-      #     player.velocity = d*(200+(l/3))
-      av = 100
-      acc = 500
-      if pressed[pg.K_DOWN] or pressed[pg.K_s]:
-          player.speed -= acc*dt
-      if pressed[pg.K_UP] or pressed[pg.K_w]:
-          player.speed += acc*dt
-      if pressed[pg.K_LEFT] or pressed[pg.K_a]:
-          player.angle += av*dt
-      if pressed[pg.K_RIGHT] or pressed[pg.K_d]:
-          player.angle -= av*dt
-      player.speed = min(300,max(-300,player.speed) )
-      player.speed -= av *dt * math.copysign(1,player.speed)
-      player.velocity = vec(math.sin(player.angle*deg2rad), math.cos(player.angle*deg2rad))*player.speed
+        player: GameObject = obj_man.objects[obj_man.id_indices["player"]]
+        # p = vec(pg.mouse.get_pos()) + vec(cam_rect.topleft)
+        # d = (p - vec(player.rect.center))
+        # angle = rad2deg * math.atan2(d.x, d.y)
+        # l = d.length()
+        # if l > 20.0:
+        #     d.normalize_ip()
+        # else:
+        #     d *= dt
+        # if not player._collided:
+        #     player.velocity = d*(200+(l/3))
+        av = 100
+        acc = 500
+        if pressed[pg.K_DOWN] or pressed[pg.K_s]:
+            player.speed -= acc*dt
+        if pressed[pg.K_UP] or pressed[pg.K_w]:
+            player.speed += acc*dt
+        if pressed[pg.K_LEFT] or pressed[pg.K_a]:
+            player.angle += av*dt
+        if pressed[pg.K_RIGHT] or pressed[pg.K_d]:
+            player.angle -= av*dt
+        player.speed = min(300, max(-300, player.speed))
+        player.speed -= av * dt * math.copysign(1, player.speed)
+        player.velocity = vec(math.sin(player.angle*deg2rad),
+                              math.cos(player.angle*deg2rad))*player.speed
 
-      cam_rect.center = player.rect.center
-
+        cam_rect.center = player.rect.center
 
     # Clear the screen
     screen.fill(BG_COLOR)
@@ -75,40 +77,43 @@ def core_loop(screen, dt,pressed, cam_rect, obj_man, std_font, big_font, WIDTH, 
             screen.blit(obj.name_txt, lp +
                         vec(- obj.name_txt.get_width()/2, -30))
         if obj.t == 'ship' or obj.id == 'player':
-          pg.draw.rect(screen, WHITE, pg.Rect(lp.x-16, lp.y-2, 32, 6))
-          pg.draw.rect(screen, RED, pg.Rect(lp.x-15, lp.y-1, 30*obj.get_health_percentage(), 4))
+            pg.draw.rect(screen, WHITE, pg.Rect(lp.x-16, lp.y-2, 32, 6))
+            pg.draw.rect(screen, RED, pg.Rect(
+                lp.x-15, lp.y-1, 30*obj.get_health_percentage(), 4))
 
     # Draw game objects
     for_objects_in_view_rect(obj_man.objects, cam_rect, draw_object)
     if player != None:
-      for c in obj_man.cities:
-          cp = c['pos']-vec(cam_rect.topleft)
-          pp = vec(player.rect.center)-vec(cam_rect.topleft)
-          # print(cp,pp)
-          dd = cp-pp
-          ll = int(dd.length()/10)
-          r = WIDTH/20
-          dd.normalize_ip()
-          pr = pp+(dd*60)
-          if debug_collisions:
-              pg.draw.line(screen, GREEN, pp, pr)
-          if ll > r:
-              txt = std_font.render(f"{c['name']}: {ll}", True, WHITE)
-              tp = pp+(dd*100)
-              tp.x -= txt.get_width()/2
-              tp.y -= txt.get_height()/2
-              screen.blit(txt, tp)
-          # else:
-          #     txt = big_font.render(f"{ll}", True, RED)
-          #     screen.blit(txt, pp+(dd*70))
-      if(player._destroy):
-        pg.event.post(pg.event.Event(FADEOUT,  time=2))
-        pg.time.set_timer(pg.event.Event(CHANGE_GAME_MODE, mode= 'game_over'), int(2*1000), 1)
+        for c in obj_man.cities:
+            cp = c['pos']-vec(cam_rect.topleft)
+            pp = vec(player.rect.center)-vec(cam_rect.topleft)
+            # print(cp,pp)
+            dd = cp-pp
+            ll = int(dd.length()/10)
+            r = WIDTH/20
+            dd.normalize_ip()
+            pr = pp+(dd*60)
+            if debug_collisions:
+                pg.draw.line(screen, GREEN, pp, pr)
+            if ll > r:
+                txt = std_font.render(f"{c['name']}: {ll}", True, WHITE)
+                tp = pp+(dd*100)
+                tp.x -= txt.get_width()/2
+                tp.y -= txt.get_height()/2
+                screen.blit(txt, tp)
+            # else:
+            #     txt = big_font.render(f"{ll}", True, RED)
+            #     screen.blit(txt, pp+(dd*70))
+        if (player._destroy):
+            pg.event.post(pg.event.Event(FADEOUT,  time=2))
+            pg.time.set_timer(pg.event.Event(
+                CHANGE_GAME_MODE, mode='game_over'), int(2*1000), 1)
 
-    if obj_man.fadeout < obj_man.fadeout_time: # no player
-      prg = 255* min(1.0,obj_man.fadeout/obj_man.fadeout_time)
-      draw_rect_alpha(screen, (BG_COLOR[0],BG_COLOR[1],BG_COLOR[2], prg),pg.Rect(0,0,WIDTH,HEIGHT))
-      obj_man.fadeout += dt
+    if obj_man.fadeout < obj_man.fadeout_time:  # no player
+        prg = 255 * min(1.0, obj_man.fadeout/obj_man.fadeout_time)
+        draw_rect_alpha(screen, (BG_COLOR[0], BG_COLOR[1], BG_COLOR[2], prg), pg.Rect(
+            0, 0, WIDTH, HEIGHT))
+        obj_man.fadeout += dt
 
     update_objects(obj_man.objects, dt, obj_man.id_indices)
 
@@ -150,6 +155,11 @@ def core_loop(screen, dt,pressed, cam_rect, obj_man, std_font, big_font, WIDTH, 
                     pg.draw.rect(screen, RED, r1, width=1)
                     pg.draw.rect(screen, RED, r2, width=1)
         i += 1
+
+    for i, q in enumerate(obj_man.open_quests):
+        c = obj_man.cities[q[1]]
+        txt = std_font.render(f"{c['name']}: {q[0]['title']}", True, WHITE)
+        screen.blit(txt, (WIDTH-250, 50 + 20*i))
 
     if debug_collisions:
         for obj in obj_man.objects:

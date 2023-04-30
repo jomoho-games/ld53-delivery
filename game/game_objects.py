@@ -25,7 +25,6 @@ def init_obj(t, x, y, sprites):
         obj.velocity *= random.randint(5, 50)
         obj.damage = random.randint(5, 15)
 
-
     if t == "clump":
         i = random.randint(0, 120)
         s = random.randint(15, 30)
@@ -48,12 +47,12 @@ def init_obj(t, x, y, sprites):
 
     if t == "city" or t == "alchemizer":
         city_sprites = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                        16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
+                        16, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
         i = city_sprites[random.randint(0, len(city_sprites)-1)]
         if t == "alchemizer":
-            i = 22
+            i = 19
         obj = GameObject(pygame.transform.scale_by(
-            sprites.get_sprite("points", i), 4), x, y, t=t)
+            sprites.get_sprite("points", i), 1.5), x, y, t=t)
         obj.static = True
         obj.resting = True
         obj.sprite_id = i
@@ -106,9 +105,9 @@ class GameObject(pygame.sprite.Sprite):
         self.health = 100
         self.max_health = 100
         self.speed = 0
-        self.angle= 0
-        self.damage= 0
-        self.city_timeout= 0
+        self.angle = 0
+        self.damage = 0
+        self.city_timeout = 0
 
         # self.mass = 1.0
         # self.inv_mass = 1.0/self.mass
@@ -117,8 +116,8 @@ class GameObject(pygame.sprite.Sprite):
         return self.health/self.max_health
 
     def update(self, dt):
-        if(self.id == 'player') :
-          self.city_timeout =max(0, self.city_timeout-dt)
+        if (self.id == 'player'):
+            self.city_timeout = max(0, self.city_timeout-dt)
         self.clamp_velocity()
         if self.static:
             self.velocity = vec(0, 0)
@@ -134,34 +133,38 @@ class GameObject(pygame.sprite.Sprite):
 
         self.health -= other.damage
         if self.health <= 0:
-          self._destroy = True
+            self._destroy = True
 
-        if(self.id == 'player') and not contact.obj_man.in_transition() :
-          if self.city_timeout<=0:
-            self.city_timeout = 5
-            if other.t == "alchemizer":
-              pg.event.post(pg.event.Event(FADEOUT,  time=0.5))
-              pg.time.set_timer(pg.event.Event(CHANGE_GAME_MODE, mode= 'alchemizer'), int(500), 1)
-            if other.t == "city":
-              pg.event.post(pg.event.Event(FADEOUT,  time=1))
-              pg.time.set_timer(pg.event.Event(CHANGE_GAME_MODE, mode= 'city', city=other.city_id), int(1000), 1)
+        if (self.id == 'player') and not contact.obj_man.in_transition():
+            if self.city_timeout <= 0:
+                self.city_timeout = 5
+                if other.t == "alchemizer":
+                    pg.event.post(pg.event.Event(FADEOUT,  time=0.5))
+                    pg.time.set_timer(pg.event.Event(
+                        CHANGE_GAME_MODE, mode='alchemizer'), int(500), 1)
+                if other.t == "city":
+                    pg.event.post(pg.event.Event(FADEOUT,  time=1))
+                    pg.time.set_timer(pg.event.Event(
+                        CHANGE_GAME_MODE, mode='city', city=other.city_id), int(1000), 1)
 
         if not self.resting:
             # self.velocity = vec(random.randint (-5, 5) or 5, random.randint(-5, 5) or 5)
-            l, r = abs(self.rect.right-other.rect.left), abs(self.rect.left-other.rect.right)
-            t, b = abs(self.rect.bottom-other.rect.top), abs(self.rect.top-other.rect.bottom)
+            l, r = abs(self.rect.right -
+                       other.rect.left), abs(self.rect.left-other.rect.right)
+            t, b = abs(self.rect.bottom -
+                       other.rect.top), abs(self.rect.top-other.rect.bottom)
             # if self.id=='player':
             #   print(l,r,t,b)
-            if min(l,r) < min(t,b):
-              if l > r:
-                self.rect.x +=r
-              else:
-                self.rect.x -=l
+            if min(l, r) < min(t, b):
+                if l > r:
+                    self.rect.x += r
+                else:
+                    self.rect.x -= l
             else:
-              if t > b:
-                self.rect.y +=b
-              else:
-                self.rect.y -=t
+                if t > b:
+                    self.rect.y += b
+                else:
+                    self.rect.y -= t
             p = vec(self.rect.center)
             o = vec(other.rect.center)
             d = o-p
@@ -197,7 +200,7 @@ def update_objects(objects, dt, id_indices):
     while index < len(objects):
         obj = objects[index]
         if obj._destroy:
-          # Remove the object and update the id_indices dictionary
+            # Remove the object and update the id_indices dictionary
             objects.pop(index)
             if obj.id in id_indices:
                 del id_indices[obj.id]
