@@ -56,16 +56,18 @@ def init_obj(t, x, y, sprites):
             sprites.get_sprite("points", i), 4), x, y, t=t)
         obj.static = True
         obj.resting = True
+        obj.sprite_id = i
         obj.rect.x -= obj.rect.width/2
         obj.rect.y -= obj.rect.height/2
 
     return obj
 
 
-def init_city(city, sprites, location):
+def init_city(city, sprites, location, city_id):
     obj = init_obj("city", city['pos'].x, city['pos'].y, sprites)
     obj.name = location['name']
     obj.quests = location['quests']
+    obj.city_id = city_id
 
     return obj
 
@@ -106,6 +108,7 @@ class GameObject(pygame.sprite.Sprite):
         self.speed = 0
         self.angle= 0
         self.damage= 0
+        self.city_timeout= 0
 
         # self.mass = 1.0
         # self.inv_mass = 1.0/self.mass
@@ -114,6 +117,8 @@ class GameObject(pygame.sprite.Sprite):
         return self.health/self.max_health
 
     def update(self, dt):
+        if(self.id == 'player') :
+          self.city_timeout =max(0, self.city_timeout-dt)
         self.clamp_velocity()
         if self.static:
             self.velocity = vec(0, 0)
@@ -131,20 +136,22 @@ class GameObject(pygame.sprite.Sprite):
         if self.health <= 0:
           self._destroy = True
 
-        if(self.id == 'player') and not contact.obj_man.in_transition():
-          if other.t == "alchemizer":
-            pg.event.post(pg.event.Event(FADEOUT,  time=0.5))
-            pg.time.set_timer(pg.event.Event(CHANGE_GAME_MODE, mode= 'inventory'), int(500), 1)
-          if other.t == "city":
-            pg.event.post(pg.event.Event(FADEOUT,  time=2))
-            pg.time.set_timer(pg.event.Event(CHANGE_GAME_MODE, mode= 'inventory'), int(2000), 1)
+        if(self.id == 'player') and not contact.obj_man.in_transition() :
+          if self.city_timeout<=0:
+            self.city_timeout = 5
+            if other.t == "alchemizer":
+              pg.event.post(pg.event.Event(FADEOUT,  time=0.5))
+              pg.time.set_timer(pg.event.Event(CHANGE_GAME_MODE, mode= 'alchemizer'), int(500), 1)
+            if other.t == "city":
+              pg.event.post(pg.event.Event(FADEOUT,  time=1))
+              pg.time.set_timer(pg.event.Event(CHANGE_GAME_MODE, mode= 'city', city=other.city_id), int(1000), 1)
 
         if not self.resting:
             # self.velocity = vec(random.randint (-5, 5) or 5, random.randint(-5, 5) or 5)
             l, r = abs(self.rect.right-other.rect.left), abs(self.rect.left-other.rect.right)
             t, b = abs(self.rect.bottom-other.rect.top), abs(self.rect.top-other.rect.bottom)
-            if self.id=='player':
-              print(l,r,t,b)
+            # if self.id=='player':
+            #   print(l,r,t,b)
             if min(l,r) < min(t,b):
               if l > r:
                 self.rect.x +=r
