@@ -2,7 +2,36 @@
   "defaults": {
     "colours": {
       "normal_bg": "#45494e,#65696e,90",
-      "hovered_bg": "rgb(30, 40, 60),#65696e,rgb(50, 60, 70),90deg"
+      "_hovered_bg": "rgb(30, 40, 60),#65696e,rgb(50, 60, 70),90deg"
+    }
+
+  },
+  "label":{
+    "font": {
+      "name": "SHPinscher",
+      "size": "16",
+      "bold": "0",
+      "italic": "0",
+      "regular_path": "assets/fonts/SHPinscher-Regular.otf",
+      "bold_path": "assets/fonts/SHPinscher-Regular.otf"
+    }
+  },
+  "button":{
+    "font": {
+      "name": "SHPinscher",
+      "size": "16",
+      "bold": "1",
+      "italic": "0",
+      "regular_path": "assets/fonts/SHPinscher-Regular.otf",
+      "bold_path": "assets/fonts/SHPinscher-Regular.otf"
+    }
+  },
+  "#close_button":{
+    "font": {
+      "name": "default",
+      "size": "20",
+      "bold": "1",
+      "italic": "0"
     }
   },
   "#craft_beer": {
@@ -13,7 +42,6 @@
       "hovered_text": "rgb(255, 255, 255)"
     }
   },
-
   "#air": {
     "colours": {
       "normal_bg": "rgb(230, 230, 230),rgb(235, 235, 235),90",

@@ -63,22 +63,29 @@ class XWrapper:
 def find_first_object_greater_than_x(objects, x):
     return bisect.bisect_left(objects, XWrapper(x))
 
-
 def for_objects_in_view_rect(objects, view_rect, fn):
     # Find the index of the first object with an x-coordinate larger than the camera rect's left edge
-    start_index = find_first_object_greater_than_x(objects, view_rect.left)
+    start_index = max(0,find_first_object_greater_than_x(objects, view_rect.left)-200)
 
     # Iterate over the objects that fit into the camera rect
     for obj in objects[start_index:]:
         # If the object's x-coordinate is greater than the camera rect's right edge, break the loop
-        if obj.rect.x > view_rect.right:
+        if obj.rect.left > view_rect.right:
             break
 
-        # Check if the object is within the camera rect's vertical bounds (top and bottom)
-        if obj.rect.bottom >= view_rect.top and obj.rect.top <= view_rect.bottom:
-            # The object fits into the camera rect
-            fn(obj)
+        # Check if any of the object's four corners are within the camera rect
+        corners = [
+            (obj.rect.left, obj.rect.top),
+            (obj.rect.right, obj.rect.top),
+            (obj.rect.left, obj.rect.bottom),
+            (obj.rect.right, obj.rect.bottom),
+        ]
 
+        for corner_x, corner_y in corners:
+            if view_rect.collidepoint(corner_x, corner_y):
+                # One of the object's corners is within the camera rect
+                fn(obj)
+                break  # No need to check the other corners, move to the next object
 
 def find_last_object_less_than_x(objects, x):
     return bisect.bisect_right(objects, XWrapper(x)) - 1
@@ -134,7 +141,7 @@ def compare_slice_performance(objects, camera_rect, num_runs=1000):
 
 
 def aabb_collision(obj1, obj2):
-    return obj1.rect.colliderect(obj2.rect)
+    return pg.Rect.colliderect(obj1.rect,obj2.rect)
 
 # Function for pixel-perfect collision detection
 

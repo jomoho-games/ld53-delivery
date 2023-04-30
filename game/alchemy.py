@@ -1,7 +1,44 @@
 import random
 import math
 
+class GameProgress:
+    def __init__(self):
+      self.inventory = {}
+      self.skill_level = 1
+      self.unlocked = []
+      self.refresh_unlocked()
+      self.xp = 0;
+
+    def add_xp(self, xp):
+      self.xp += xp
+      self.skill_level = self.calculate_skill_level()
+
+    def calculate_skill_level(self):
+        level = 1
+        xp_required = 100
+        xp = int(self.xp)
+
+        while xp >= xp_required:
+            xp -= xp_required
+            level += 1
+            xp_required *= 2
+
+        return level
+
+    def xp_required_for_next_level(self):
+        level = self.calculate_skill_level()
+        return 100 * (2 ** (level - 1))
+
+    def refresh_unlocked(self):
+      self.unlocked = []
+      for s in alchemy_game_data['skill_progression']:
+        if self.skill_level >= s['level']:
+          self.unlocked.extend(s['unlocks'])
+      self.unlocked = list(set(self.unlocked))
+
+
 alchemy_game_data = {
+
     'elements': [
         'earth', 'water', 'fire', 'air', 'metal', 'wood', 'light', 'darkness', 'electricity', 'ice'
     ],

@@ -1,3 +1,4 @@
+import pygame
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -6,3 +7,7 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 250, 0)
 
 BG_COLOR =(17,24,38)
+
+CHANGE_GAME_MODE = pygame.USEREVENT +55
+CHANGE_LEVEL = pygame.USEREVENT +56
+FADEOUT = pygame.USEREVENT +57

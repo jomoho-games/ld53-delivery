@@ -4,15 +4,16 @@ from pygame.math import Vector2 as vec
 
 def generate_random_locations(num_locations, map_rect, min_radius, max_radius):
     locations = []
-
     for _ in range(num_locations):
-        while True:
+        ittt = 0
+        while True and ittt < 10000:
             radius = random.uniform(min_radius, max_radius)
             x = random.uniform(radius+map_rect.left, map_rect.right - radius)
             y = random.uniform(radius+map_rect.top, map_rect.bottom - radius)
 
             if not any(math.sqrt((x - loc['pos'].x) ** 2 + (y - loc['pos'].y) ** 2) < (radius + loc['radius']) for loc in locations):
                 break
+            ittt += 1
 
         locations.append({'pos': vec(x,y), 'radius': radius})
 
