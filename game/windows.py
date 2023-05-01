@@ -2,7 +2,6 @@ import pygame as pg
 from pygame.math import Vector2 as vec
 import os
 import asyncio
-import numpy as np
 import pygame_gui
 import pygame_gui.elements as gui
 import math
