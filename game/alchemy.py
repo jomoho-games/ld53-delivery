@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import random
 import math
 
@@ -95,6 +96,7 @@ updated_recipes = [
     {'input': ['air', 'water'], 'output': 'mist'},
     {'input': ['earth', 'air'], 'output': 'dust'},
 
+    {'input': ['lava', 'water'], 'output': 'stone'},
     {'input': ['water', 'metal'], 'output': 'rust'},
     {'input': ['earth', 'wood'], 'output': 'herbs'},
     {'input': ['fire', 'wood'], 'output': 'charcoal'},
@@ -112,7 +114,6 @@ updated_recipes = [
     {'input': ['steam', 'earth'], 'output': 'geyser'},
     {'input': ['mud', 'wood'], 'output': 'swamp'},
 
-    {'input': ['lava', 'water'], 'output': 'stone'},
     {'input': ['laser', 'metal'], 'output': 'steel'},
     {'input': ['static', 'shock'], 'output': 'lightning'},
     {'input': ['plasma', 'earth'], 'output': 'crystal'},
@@ -128,12 +129,12 @@ alchemy_game_data['recipes'] = updated_recipes
 
 
 def gather_unique_materials(alchemy_game_data):
-    unique_materials = set(alchemy_game_data['elements'])
+    unique_materials = list(alchemy_game_data['elements'])
 
     for recipe in alchemy_game_data['recipes']:
-        unique_materials.update(recipe['input'])
-        unique_materials.add(recipe['output'])
-
+        unique_materials.extend(recipe['input'])
+        unique_materials.append(recipe['output'])
+    unique_materials = list(OrderedDict.fromkeys(unique_materials).keys())
     return unique_materials
 
 
@@ -221,7 +222,7 @@ element_colors = {
     "glass": (211, 211, 211),
     "crystal": (0, 191, 255),
     "salt": (255, 250, 250),
-    "electricity": (173, 216, 230),
+    "electricity": (233, 236, 179),
     "snow": (255, 250, 250),
     "metal": (192, 192, 192),
     "wood": (139, 115, 85),
@@ -235,5 +236,18 @@ element_colors = {
     "rainbow": (148, 0, 211),
     "sound": (123, 104, 238),
     "frost": (135, 206, 235),
-    "purity": (255, 255, 255)
+    "purity": (255, 255, 255),
+    "shock": (0, 255, 127),
+    "brick": (178, 34, 34),
+    "gears": (169, 169, 169),
+    "static": (220, 220, 220),
+    "plasma": (255, 105, 180),
+    "herbs": (60, 179, 113),
+    "slush": (135, 206, 250),
+    "shadow": (75, 0, 130),
+    "steel": (70, 130, 180),
+    "swampfire": (46, 139, 87),
+    "geyser": (95, 158, 160),
+    "lightning": (255, 255, 0),
+    "wind": (240, 255, 255)
 }

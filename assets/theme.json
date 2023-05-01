@@ -4,9 +4,30 @@
       "normal_bg": "#45494e,#65696e,90",
       "_hovered_bg": "rgb(30, 40, 60),#65696e,rgb(50, 60, 70),90deg"
     }
-
   },
-  "label":{
+  "#intro_text": {
+    "colours": {
+      "no_rmal_bg": "rgba(30, 40, 60,0),rgba(20, 30, 40,30),90",
+      "dark_bg": "rgba(20, 50, 89, 235),rgba(20, 70, 80,240),90"
+    },
+    "font": {
+      "name": "SHPinscher",
+      "size": "20",
+      "bold": "1",
+      "italic": "0",
+      "regular_path": "assets/fonts/SHPinscher-Regular.otf"
+    }
+  },
+  "text_box": {
+    "font": {
+      "name": "SHPinscher",
+      "size": "20",
+      "bold": "1",
+      "italic": "0",
+      "regular_path": "assets/fonts/SHPinscher-Regular.otf"
+    }
+  },
+  "label": {
     "font": {
       "name": "SHPinscher",
       "size": "16",
@@ -16,7 +37,7 @@
       "bold_path": "assets/fonts/SHPinscher-Regular.otf"
     }
   },
-  "button":{
+  "button": {
     "font": {
       "name": "SHPinscher",
       "size": "16",
@@ -26,7 +47,7 @@
       "bold_path": "assets/fonts/SHPinscher-Regular.otf"
     }
   },
-  "#close_button":{
+  "#close_button": {
     "font": {
       "name": "default",
       "size": "20",
@@ -228,8 +249,8 @@
   },
   "#electricity": {
     "colours": {
-      "normal_bg": "rgb(173, 216, 230),rgb(189, 223, 235),90",
-      "hovered_bg": "rgb(121, 151, 161),rgb(96, 120, 128),90",
+      "normal_bg": "rgb(233, 236, 179),rgb(237, 239, 194),90",
+      "hovered_bg": "rgb(163, 165, 125),rgb(130, 132, 100),90",
       "normal_text": "rgb(0, 0, 0)",
       "hovered_text": "rgb(0, 0, 0)"
     }
@@ -342,6 +363,110 @@
     "colours": {
       "normal_bg": "rgb(255, 255, 255),rgb(255, 255, 255),90",
       "hovered_bg": "rgb(178, 178, 178),rgb(142, 142, 142),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(0, 0, 0)"
+    }
+  },
+  "#shock": {
+    "colours": {
+      "normal_bg": "rgb(0, 255, 127),rgb(51, 255, 152),90",
+      "hovered_bg": "rgb(0, 178, 88),rgb(0, 142, 70),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#brick": {
+    "colours": {
+      "normal_bg": "rgb(178, 34, 34),rgb(193, 78, 78),90",
+      "hovered_bg": "rgb(124, 23, 23),rgb(99, 18, 18),90",
+      "normal_text": "rgb(255, 255, 255)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#gears": {
+    "colours": {
+      "normal_bg": "rgb(169, 169, 169),rgb(186, 186, 186),90",
+      "hovered_bg": "rgb(118, 118, 118),rgb(94, 94, 94),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#static": {
+    "colours": {
+      "normal_bg": "rgb(220, 220, 220),rgb(227, 227, 227),90",
+      "hovered_bg": "rgb(154, 154, 154),rgb(123, 123, 123),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(0, 0, 0)"
+    }
+  },
+  "#plasma": {
+    "colours": {
+      "normal_bg": "rgb(255, 105, 180),rgb(255, 135, 195),90",
+      "hovered_bg": "rgb(178, 73, 125),rgb(142, 58, 100),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#herbs": {
+    "colours": {
+      "normal_bg": "rgb(60, 179, 113),rgb(99, 194, 141),90",
+      "hovered_bg": "rgb(42, 125, 79),rgb(33, 100, 63),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#slush": {
+    "colours": {
+      "normal_bg": "rgb(135, 206, 250),rgb(159, 215, 251),90",
+      "hovered_bg": "rgb(94, 144, 175),rgb(75, 115, 140),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(0, 0, 0)"
+    }
+  },
+  "#shadow": {
+    "colours": {
+      "normal_bg": "rgb(75, 0, 130),rgb(111, 51, 155),90",
+      "hovered_bg": "rgb(52, 0, 91),rgb(41, 0, 72),90",
+      "normal_text": "rgb(255, 255, 255)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#steel": {
+    "colours": {
+      "normal_bg": "rgb(70, 130, 180),rgb(107, 155, 195),90",
+      "hovered_bg": "rgb(49, 91, 125),rgb(39, 72, 100),90",
+      "normal_text": "rgb(255, 255, 255)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#swampfire": {
+    "colours": {
+      "normal_bg": "rgb(46, 139, 87),rgb(87, 162, 120),90",
+      "hovered_bg": "rgb(32, 97, 60),rgb(25, 77, 48),90",
+      "normal_text": "rgb(255, 255, 255)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#geyser": {
+    "colours": {
+      "normal_bg": "rgb(95, 158, 160),rgb(127, 177, 179),90",
+      "hovered_bg": "rgb(66, 110, 112),rgb(52, 88, 89),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(255, 255, 255)"
+    }
+  },
+  "#lightning": {
+    "colours": {
+      "normal_bg": "rgb(255, 255, 0),rgb(255, 255, 51),90",
+      "hovered_bg": "rgb(178, 178, 0),rgb(142, 142, 0),90",
+      "normal_text": "rgb(0, 0, 0)",
+      "hovered_text": "rgb(0, 0, 0)"
+    }
+  },
+  "#wind": {
+    "colours": {
+      "normal_bg": "rgb(240, 255, 255),rgb(243, 255, 255),90",
+      "hovered_bg": "rgb(168, 178, 178),rgb(134, 142, 142),90",
       "normal_text": "rgb(0, 0, 0)",
       "hovered_text": "rgb(0, 0, 0)"
     }

@@ -1,6 +1,7 @@
 from .game_objects import *
 from .physics import *
 from .colors import *
+from .quests import *
 import pygame as pg
 import math
 
@@ -26,10 +27,18 @@ def draw_rect_alpha(surface, color, rect):
     surface.blit(shape_surf, rect)
 
 
-def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH, HEIGHT, debug_collisions):
+global frame_counter
+frame_counter = 0
 
+
+def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH, HEIGHT, debug_collisions):
+    global frame_counter
+
+    frame_counter += 1
+    mouse_pressed = pygame.mouse.get_pressed(3)
     fps = 1.0/dt
     player = None
+    player_ghost = None
     if 'player' in obj_man.id_indices:
         player: GameObject = obj_man.objects[obj_man.id_indices["player"]]
         # p = vec(pg.mouse.get_pos()) + vec(cam_rect.topleft)
@@ -58,6 +67,12 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
                               math.cos(player.angle*deg2rad))*player.speed
 
         cam_rect.center = player.rect.center
+    if 'player_ghost' in obj_man.element_indices:
+        player_ghost: GameObject = obj_man.element_objects[obj_man.element_indices["player_ghost"]]
+    if player != None and player_ghost != None:
+        player_ghost.rect.center = player.rect.center
+    else:
+        print("FLASE")
 
     # Clear the screen
     screen.fill(BG_COLOR)
@@ -80,6 +95,24 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             pg.draw.rect(screen, WHITE, pg.Rect(lp.x-16, lp.y-2, 32, 6))
             pg.draw.rect(screen, RED, pg.Rect(
                 lp.x-15, lp.y-1, 30*obj.get_health_percentage(), 4))
+
+    def draw_element(obj):
+        p = (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
+        lp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
+        if obj.id == 'player_ghost':
+            # pg.draw.circle(screen, YELLOW, lp, 50, 1)
+            return
+        screen.blit(obj.image, p)
+        # pg.draw.circle(screen, element_colors[obj.element], lp, 5)
+
+    for_objects_in_view_rect(obj_man.element_objects, cam_rect, draw_element)
+    update_objects(
+        obj_man.element_objects, dt, obj_man.element_indices)
+    # update_objects_in_view_rect(
+    #     obj_man.element_objects, cam_rect, dt, obj_man.element_indices)
+    # WE EED TO UPDATE the ghost after index change
+    if 'player_ghost' in obj_man.element_indices:
+        player_ghost: GameObject = obj_man.element_objects[obj_man.element_indices["player_ghost"]]
 
     # Draw game objects
     for_objects_in_view_rect(obj_man.objects, cam_rect, draw_object)
@@ -156,11 +189,73 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
                     pg.draw.rect(screen, RED, r2, width=1)
         i += 1
 
+    # Perform ELEMENTAL Sweep and Prune
+    potential_elem_pairs = sweep_and_prune(
+        visible_objects_slice(obj_man.element_objects, cam_rect))
+    if player_ghost != None and player != None:
+        player.can_tractor = False
+        player.can_collect = False
+        p = vec(player.rect.center)-vec(cam_rect.topleft)
+        # pg.draw.rect(screen, GREEN, player_ghost.rect, 1)
+        player_ghost: GameObject = obj_man.element_objects[obj_man.element_indices["player_ghost"]]
+        for obj1, obj2 in potential_elem_pairs:
+
+            if debug_collisions:
+                r1 = pg.Rect(obj1.rect.x-cam_rect.x, obj1.rect.y -
+                             cam_rect.y, obj1.rect.width, obj1.rect.height)
+                r2 = pg.Rect(obj2.rect.x-cam_rect.x, obj2.rect.y -
+                             cam_rect.y, obj2.rect.width, obj2.rect.height)
+                if pixel_perfect_collision(obj1, obj2):
+                    coll_count_pp += 1
+                    pg.draw.rect(screen, WHITE, r1, width=1)
+                    pg.draw.rect(screen, WHITE, r2, width=1)
+                else:
+                    pg.draw.rect(screen, RED, r1, width=1)
+                    pg.draw.rect(screen, RED, r2, width=1)
+
+            if obj1 == player_ghost or obj2 == player_ghost:
+                other = obj1
+                if obj1 == player_ghost:
+                    other = obj2
+                if other.t == 'element':
+                    d = vec(obj1.rect.center) - vec(obj2.rect.center)
+                    dl = d.length()
+                    if dl < TRACTOR_DISTANCE:
+                        player.can_tractor = True
+                    if dl < COLLECT_DISTANCE:
+                        player.can_collect = True
+                    if random.random() > 0.6 and frame_counter % 3 == 0:
+                        r2 = pg.Rect(player_ghost.rect.x-cam_rect.x, player_ghost.rect.y -
+                                     cam_rect.y, player_ghost.rect.width, player_ghost.rect.height)
+                        pg.draw.rect(screen, WHITE, r2, width=1)
+                    if mouse_pressed[2] and player.can_tractor:
+                        print("tractor")
+                        # TODO ATTRACT
+                    if mouse_pressed[0] or mouse_pressed[1] and player.can_collect:
+                        other._destroy = True
+                        if not other.element in obj_man.inventory:
+                            obj_man.inventory[other.element] = 0
+                        obj_man.inventory[other.element] += other.amount
+                        print("collect")
+                        # TODO COLLECT
+
+    if player != None:
+        p = vec(player.rect.center)-vec(cam_rect.topleft)
+        if mouse_pressed[2] and player.can_tractor:
+            pg.draw.circle(screen, GREEN, p, TRACTOR_DISTANCE, width=5)
+            # print(mouse_pressed)
+        if mouse_pressed[0] or mouse_pressed[1] and player.can_collect:
+            pg.draw.circle(screen, WHITE, p, COLLECT_DISTANCE, width=5)
+            # print(mouse_pressed)
+
+    # DRAW OPEN QUESTS
     for i, q in enumerate(obj_man.open_quests):
         c = obj_man.cities[q[1]]
-        txt = std_font.render(f"{c['name']}: {q[0]['title']}", True, WHITE)
+        col = WHITE
+        if can_fulfill_quest(obj_man.inventory, q[0]['required']):
+            col = GREEN
+        txt = std_font.render(f"{c['name']}: {q[0]['title']}", True, col)
         screen.blit(txt, (WIDTH-250, 50 + 20*i))
-
     if debug_collisions:
         for obj in obj_man.objects:
             txt = std_font.render(obj.tag, True, YELLOW)
@@ -175,4 +270,3 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
         txt = big_font.render(
             f"fps: {1.0/dt:.2f} dt: {dt:.4f}", True, GREEN)
         screen.blit(txt, (0, 30))
-        draw_fps(screen, fps, std_font, WIDTH)

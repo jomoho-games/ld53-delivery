@@ -1,3 +1,4 @@
+import argparse
 import pygame as pg
 from pygame.math import Vector2 as vec
 import os
@@ -8,6 +9,7 @@ import pygame_gui.elements as gui
 import math
 from game import *
 from pygame_gui.core import ObjectID
+from collections import OrderedDict
 
 print(pg.version)
 pg.freetype.init()
@@ -16,8 +18,17 @@ pg.font.init()
 pg.mixer.init()
 
 WIDTH, HEIGHT = 1280, 720
+mul = 7
+
+MAP_LEFT = int(WIDTH*-mul)
+MAP_TOP = int(HEIGHT*-mul)
+MAP_RIGHT = int(WIDTH*mul)
+MAP_BOTTOM = int(HEIGHT*mul)
+MAP_WIDTH = int(WIDTH*2*mul)
+MAP_HEIGHT = int(HEIGHT*2*mul)
+
 GAME_TITLE = "Delivery Alchemist!"
-FPS = 30
+FPS = 60
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption(GAME_TITLE)
 screen_rect = screen.get_rect()
@@ -26,10 +37,14 @@ cam_rect = pg.Rect(screen_rect)
 ui_manager = pygame_gui.UIManager((WIDTH, HEIGHT), 'assets/theme.json')
 ui_manager.add_font_paths("SHPinscher",
                           "assets/fonts/SHPinscher-Regular.otf",)
+ui_manager.add_font_paths("norwester",
+                          "assets/fonts/norwester.otf",)
 
 ui_manager.preload_fonts([
     {'name': 'SHPinscher', 'point_size': 16, 'style': 'regular'},
-    {'name': 'SHPinscher', 'point_size': 16, 'style': 'bold'}
+    {'name': 'SHPinscher', 'point_size': 16, 'style': 'bold'},
+    {'name': 'SHPinscher', 'point_size': 20, 'style': 'regular'},
+    {'name': 'SHPinscher', 'point_size': 20, 'style': 'bold'},
 
 ])
 
@@ -41,7 +56,7 @@ sprites.load_spritesheet("clumps", "assets/sheets/sheet_clumps.json")
 std_font = pg.font.Font("assets/fonts/SHPinscher-Regular.otf", 16)
 big_font = pg.font.Font('assets/fonts/norwester.otf', 40)
 
-GAME_OBJECT_COUNT = 20000
+GAME_OBJECT_COUNT = 12000
 LEVEL = 'level_1'
 
 BORDER = pg.Rect(WIDTH//2 - 5, 0, 10, HEIGHT)
@@ -54,222 +69,47 @@ BG = pg.transform.scale(pg.image.load(
     os.path.join('assets', 'space3.png')), (WIDTH, HEIGHT))
 
 
-class AlchemizerWin:
-    def __init__(self, inventory, ui_manager, WIDTH, HEIGHT):
-        w = WIDTH-100
-        h = HEIGHT-100
-        self.win = gui.UIWindow(pg.Rect(50, 50, w, h),
-                                draggable=False,
-                                object_id="#inv_window",
-                                window_display_title="Alchemizer")
-
-        elementlist = [(f'{k}: {n}', f"#{k}")
-                       for k, n in inventory.items() if n > 0]
-        self.ui_element_select = gui.UISelectionList(pg.Rect(10, 50, 200, h-150),
-                                                     manager=ui_manager,
-                                                     container=self.win,
-                                                     item_list=list(
-                                                         elementlist),
-                                                     object_id="elem_select",
-                                                     allow_multi_select=False)
-        self.input_items = {
-            "fire": 0,
-            "water": 0,
-            "earth": 0,
-            "air": 0,
-        }
-        input_list = [(f'{k}: {n}', f"#{k}")
-                      for k, n in self.input_items.items() if n > 0]
-
-        self.ui_input_select = gui.UISelectionList(pg.Rect(220, 50, 200, h-150),
-                                                   manager=ui_manager,
-                                                   container=self.win,
-                                                   item_list=list(input_list),
-                                                   object_id="input_select",
-                                                   allow_multi_select=False)
-
-        self.status_text = gui.UILabel(pg.Rect(w/2-120, h-210, 600, 50),
-                                       manager=ui_manager,
-                                       container=self.win,
-                                       text="Run the alchemizer using input elements",
-                                       )
-        self.craft_btn = gui.ui_button.UIButton(pg.Rect(w/2+50, h-120, 200, 50),
-                                                manager=ui_manager,
-                                                container=self.win,
-                                                text="Run Alchemizer",
-                                                object_id="#craft_beer",
-                                                )
-        self.close_btn = gui.ui_button.UIButton(pg.Rect(w-200, h-120, 120, 50),
-                                                manager=ui_manager,
-                                                container=self.win,
-                                                object_id="close_button",
-                                                text="Close",
-                                                )
-        self.spr = sprites.get_sprite("points", 18)
-        desired_width = 400
-        spr_scale = desired_width / self.spr.get_width()
-        self.img = gui.UIImage(pg.Rect(w/2, 50, self.spr.get_width()*spr_scale, self.spr.get_height()*spr_scale),
-                               self.spr,
-                               manager=ui_manager,
-                               container=self.win,
-                               )
-
-    def update_input(self):
-        input_list = [(f'{k}: {n}', f"#{k}")
-                      for k, n in self.input_items.items() if n > 0]
-        self.ui_input_select.set_item_list(input_list)
-
-    def update_inventory(self, inventory):
-        elementlist = [(f'{k}: {n}', f"#{k}")
-                       for k, n in inventory.items() if n > 0]
-        self.ui_element_select.set_item_list(elementlist)
-
-
-class CityWin:
-    def __init__(self, city, inventory, ui_manager, WIDTH, HEIGHT):
-        self.city = city
-        print(city)
-        self.name = city['name']
-        w = WIDTH-100
-        h = HEIGHT-100
-        self.win = gui.UIWindow(pg.Rect(50, 50, w, h),
-                                draggable=False,
-                                object_id="#inv_window",
-                                window_display_title=f"{self.name}")
-        quest_list = [(f'{k["title"]}:', f"#{city['city_id']}${i}")
-                      for i, k in enumerate(city['quests'])]
-
-        self.ui_element_select = gui.UISelectionList(pg.Rect(w-250, 50, 200, h-200),
-                                                     manager=ui_manager,
-                                                     container=self.win,
-                                                     item_list=list(
-                                                         quest_list),
-                                                     object_id="quest_select",
-                                                     allow_multi_select=False)
-
-        self.status_text = gui.UILabel(pg.Rect(w/2-200, h-220, 600, 50),
-                                       manager=ui_manager,
-                                       container=self.win,
-                                       text="Choose a delivery",
-                                       )
-        self.text_output_box = gui.UITextBox("<font size=20>Title Text</font>\n<br><br> Description etc.<br> requirements: 2 gold, 5 fish",
-                                pg.Rect(400, 50, 500,h-200),
-                                container=self.win)
-
-        self.delivery_btn = gui.ui_button.UIButton(pg.Rect(400, h-120, 200, 50),
-                                                manager=ui_manager,
-                                                container=self.win,
-                                                text="Accept!",
-                                                object_id="#accept_delivery",
-                                                )
-        # self.craft_btn.disable()
-        self.close_btn = gui.ui_button.UIButton(pg.Rect(w-250, h-120, 200, 50),
-                                                manager=ui_manager,
-                                                container=self.win,
-                                                object_id="close_button",
-                                                text="Close",
-                                                )
-        self.spr = sprites.get_sprite("points", city['sprite_id'])
-        desired_width = 340  # Set this to your desired width
-        max_height = h-120
-        # Calculate the scale value
-        spr_scale = desired_width / self.spr.get_width()
-
-        # Check if the scaled height is greater than the maximum height
-        if int(self.spr.get_height() * spr_scale) > max_height:
-            # Adjust the scale value based on the maximum height
-            spr_scale = max_height / self.spr.get_height()
-
-        print("City sprite_id:", city['sprite_id'])
-        self.img = gui.UIImage(pg.Rect(30, 50, self.spr.get_width()*spr_scale, self.spr.get_height()*spr_scale),
-                               self.spr,
-                               manager=ui_manager,
-                               container=self.win,
-                               )
-
-    def press_delivery_btn(self, obj_man):
-        q = self.city["quests"][self.selected_id]
-        obj_man.open_quests.append((q, self.city['city_id'], self.selected_id))
-        q['status'] = 'accepted'
-        self.delivery_btn.disable()
-        self.select_quest(self.selected_id)
-
-    def select_quest(self, id):
-        self.selected_id=id
-        # "<font size=20>Title Text</font>\n<br><br> Description etc.<br> requirements: 2 gold, 5 fish"
-        q = self.city["quests"][id]
-        req = "\n\nRequired:\n"
-        for r,v in q['required'].items():
-            req += f'{r}: {v} \n'
-        stat = "Accept Delivery to Start working on it"
-        self.delivery_btn.enable()
-        if q['status'] == 'accepted':
-            self.delivery_btn.disable()
-            stat = "Gather Elements and Alchemize them to fulfill the delivery!"
-        self.text_output_box.set_text(f'<font size=20>{q["title"]}</font>\n\n{q["description"]}<br>{req}\n\nStatus:\n{stat}')
-        self.status_text.set_text(f'{self.city["quests"][id]["title"]}')
-
-    def update_input(self):
-        input_list = [(f'{k}: {n}', f"#{k}")
-                      for k, n in self.input_items.items() if n > 0]
-        self.ui_input_select.set_item_list(input_list)
-
-    def update_inventory(self, inventory):
-        elementlist = [(f'{k}: {n}', f"#{k}")
-                       for k, n in inventory.items() if n > 0]
-        self.ui_element_select.set_item_list(elementlist)
-
-
-class MenuWin:
-    def __init__(self, ui_manager, WIDTH, HEIGHT):
-        w = WIDTH-100
-        h = HEIGHT-100
-        self.win = gui.UIWindow(pg.Rect(50, 50, w, h),
-                                draggable=False,
-                                object_id="#inv_window",
-                                window_display_title="Alchemy Delivery")
-
-        self.close_btn = gui.ui_button.UIButton(pg.Rect(w-200, h-120, 120, 50),
-                                                manager=ui_manager,
-                                                container=self.win,
-                                                object_id="close_button",
-                                                text="Start Game",
-                                                )
-        self.spr = sprites.get_sprite("points", 27)
-        self.img = gui.UIImage(pg.Rect(w/2, 50, self.spr.get_width()*2, self.spr.get_height()*2),
-                               self.spr,
-                               manager=ui_manager,
-                               container=self.win,
-                               )
-
-
-START_GAME_MODE = "city"
+START_GAME_MODE = "main_menu"
 image_manager = ImageManager()
+
+DEV_MODE = False
 
 
 class ObjManager:
-    def __init__(self):
+    def __init__(self, level):
         print("POP")
-        self.objects = [init_obj("ship", random.randint(WIDTH*-10, WIDTH*10), random.randint(
-            HEIGHT*-10, HEIGHT*10), sprites) for _ in range(int(GAME_OBJECT_COUNT/6))]
+        self.level = level
+        self.objects = [init_obj("ship", random.randint(MAP_LEFT, MAP_RIGHT), random.randint(
+            MAP_TOP, MAP_BOTTOM), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/6))]
 
-        self.objects.extend([init_obj("clump", random.randint(WIDTH*-10, WIDTH*10), random.randint(
-            HEIGHT*-10, HEIGHT*10), sprites) for _ in range(int(GAME_OBJECT_COUNT/3))])
+        self.objects.extend([init_obj("clump", random.randint(MAP_LEFT, MAP_RIGHT), random.randint(
+            MAP_TOP, MAP_BOTTOM), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/4))])
 
-        locations = alchemy_quests[LEVEL]["locations"]
+        self.element_objects = []
+        self.element_indices = {}
+
+        self.element_objects.extend([init_obj("element", random.randint(MAP_LEFT, MAP_RIGHT), random.randint(
+            MAP_TOP, MAP_BOTTOM), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/5))])
+
+        self.element_objects[0] = init_obj(
+            "player_ghost", 0, 0,  sprites, self.level)
+        self.element_objects[0].id = "player_ghost"
+
+        locations = alchemy_quests[self.level]["locations"]
 
         city_count = len(locations)
         print("gen_random_locations...")
         self.cities = generate_random_locations(city_count+3, pg.Rect(
-            WIDTH*-10, HEIGHT*-10, WIDTH*20, HEIGHT*20), WIDTH, WIDTH*5)
+            MAP_LEFT, MAP_TOP, MAP_WIDTH, MAP_HEIGHT), WIDTH, WIDTH*5)
         print("done")
-        self.city_objs = [init_city(city, sprites, locations[i], i)
+        self.city_objs = [init_city(city, sprites, locations[i], i, self.level)
                           for i, city in enumerate(self.cities[:city_count])]
-        self.city_objs.extend([init_alchemizer(city, sprites, locations[i])
+        self.city_objs.extend([init_alchemizer(city, sprites, locations[i], self.level)
                                for i, city in enumerate(self.cities[city_count:])])
         for i, c in enumerate(self.cities[:city_count]):
             c["name"] = locations[i]["name"]
             c["quests"] = locations[i]["quests"]
+            c["welcome"] = locations[i]["welcome"]
             c["city_id"] = i
 
         for i, c in enumerate(self.cities[city_count:]):
@@ -291,23 +131,29 @@ class ObjManager:
         self.objects[0].static = False
         self.objects[0].damage = 5
         self.objects[0].city_timeout = 0
-        self.objects[0].angle =180
+        self.objects[0].angle = 180
+        self.objects[0].can_tractor = False
+        self.objects[0].can_collect = False
         self.objects[0].collected = []
+        self.objects[0].health = 200
+        self.objects[0].max_health = 200
 
+        self.element_objects.sort()
         self.objects.sort()
         self.id_indices = populate_id_indices(self.objects)
+        self.element_indices = populate_id_indices(self.element_objects)
 
         self.reset_progress()
+        self.sprites = sprites
 
     def reset_progress(self):
         self.inventory = {
-            "fire": 100,
-            "water": 100,
-            "earth": 100,
-            "air": 100,
+            "fire": 1,
+            "water": 1,
         }
         self.fadeout = 0
         self.fadeout_time = 0
+        self.gold = 0
 
         quest_mat = []
         for k, l in alchemy_quests.items():
@@ -319,39 +165,62 @@ class ObjManager:
                     quest_mat.extend([k for k, v in q['required'].items()])
                 # print(loc['quests'])
         self.open_quests = []
+        self.sorted_materials = gather_unique_materials(alchemy_game_data)
 
         if DEV_MODE:
             quest_mat = set(quest_mat)
-            uniq_mat = gather_unique_materials(alchemy_game_data)
-            req_mat = collect_required_materials(quest_mat, alchemy_game_data['recipes'])
-            print("\n DO required materials match receipes? \n",  req_mat == uniq_mat)
+            uniq_mat = set(gather_unique_materials(alchemy_game_data))
+            req_mat = collect_required_materials(
+                quest_mat, alchemy_game_data['recipes'])
+            self.inventory = {key: 100 for key in uniq_mat}
+            self.sort_inventory()
+            print("\n DO required materials match receipes? \n",
+                  req_mat == uniq_mat)
             print("quest_mat", quest_mat,)
             print("uniq_mat", uniq_mat,)
             print("req_mat", req_mat,)
-            print("missing for quests:\n",req_mat -uniq_mat,)
+            print("missing for quests:\n", req_mat - uniq_mat,)
             print("superflous receipes:\n", uniq_mat-req_mat,)
+            colored = set(element_colors.keys())
+            print("missing colors:\n", uniq_mat - colored,)
 
+    def sort_inventory(self):
+        self.inventory = {
+            key:  self.inventory[key] for key in self.sorted_materials if key in self.inventory}
 
     def in_transition(self):
         return self.fadeout < self.fadeout_time
 
+    def total_material_amount(self):
+        return sum(self.inventory.values())
 
-DEV_MODE = True
+    def draw_hud(self, screen, x, y):
+        txt = std_font.render(
+            # f"level: {self.level} gold:{self.gold} materials: {self.total_material_amount()}", True, WHITE)
+            f"level: {self.level} materials: {self.total_material_amount()}", True, WHITE)
+        screen.blit(txt, (x, y))
 
 
-async def main():
+async def main(dev_mode=False):
+    global DEV_MODE
+    DEV_MODE = dev_mode
     game_mode = START_GAME_MODE
-    obj_man = ObjManager()
+    current_level = LEVEL
+    obj_man = ObjManager(current_level)
 
     ui_alchemizer_win = AlchemizerWin(
-        obj_man.inventory, ui_manager, WIDTH, HEIGHT)
+        obj_man, ui_manager, WIDTH, HEIGHT)
     if game_mode != "alchemizer":
         ui_alchemizer_win.win.kill()
         ui_alchemizer_win = None
-    ui_main = None
-    ui_city_win = CityWin(obj_man.cities[0], obj_man.inventory, ui_manager, WIDTH, HEIGHT)
+    ui_main = MenuWin(obj_man, ui_manager, WIDTH, HEIGHT)
+    if game_mode != "main_menu":
+        ui_main.close()
+        ui_main = None
+    ui_city_win = CityWin(
+        obj_man.cities[0], obj_man, ui_manager, WIDTH, HEIGHT)
     if game_mode != "city":
-        ui_city_win.win.kill()
+        ui_city_win.close()
         ui_city_win = None
 
     quit_please = False
@@ -377,32 +246,48 @@ async def main():
                 obj_man.fadeout_time = event.time
             if event.type == CHANGE_GAME_MODE:
                 game_mode = event.mode
+                if event.mode == 'next_level':
+                    current_level = event.next_level
+                    game_mode = "game"
+                    obj_man = ObjManager(current_level)
+                    if ui_alchemizer_win != None:
+                        ui_alchemizer_win.win.kill()
+                        ui_alchemizer_win = None
+                    if ui_main != None:
+                        ui_main.close()
+                        ui_main = None
+                    if ui_city_win != None:
+                        ui_city_win.close()
+                        ui_city_win = None
                 if event.mode == 'game_over':
                     pg.time.set_timer(pg.event.Event(
                         CHANGE_GAME_MODE, mode='main_menu'), 3*1000, 1)
                 if event.mode == 'main_menu':
-                    ui_main = MenuWin(ui_manager, WIDTH, HEIGHT)
-                    obj_man = ObjManager()
+                    ui_main = MenuWin(obj_man, ui_manager, WIDTH, HEIGHT)
+                    obj_man = ObjManager(current_level)
                 if event.mode == "alchemizer":
                     ui_alchemizer_win = AlchemizerWin(
-                        obj_man.inventory, ui_manager, WIDTH, HEIGHT)
+                        obj_man, ui_manager, WIDTH, HEIGHT)
                 if event.mode == "city":
                     ui_city_win = CityWin(obj_man.cities[event.city],
-                                          obj_man.inventory, ui_manager, WIDTH, HEIGHT)
+                                          obj_man, ui_manager, WIDTH, HEIGHT)
 
             if DEV_MODE:
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
                         quit_please = True
+                    if event.key == pg.K_g:
+                        pg.time.set_timer(pg.event.Event(
+                            CHANGE_GAME_MODE, mode='main_menu'), 10, 1)
                     if event.key == pg.K_i:
                         game_mode = "alchemizer"
                         ui_alchemizer_win = AlchemizerWin(
-                            obj_man.inventory, ui_manager, WIDTH, HEIGHT)
+                            obj_man, ui_manager, WIDTH, HEIGHT)
                     if event.key == pg.K_g:
                         game_mode = "game"
 
                     if event.key == pg.K_r:
-                        obj_man = ObjManager()
+                        obj_man = ObjManager(current_level)
                     if event.key == pg.K_p:
                         compare_slice_performance(objects, cam_rect)
                     if event.key == pg.K_t:
@@ -414,26 +299,31 @@ async def main():
                         GAME_OBJECT_COUNT += 1000
                     if event.key == pg.K_PAGEDOWN:
                         GAME_OBJECT_COUNT -= 1000
+                    if event.key == pg.K_END:
+                        force_level_completion(alchemy_quests, current_level)
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 # if event.ui_element == hello_button1:
                 print('Hello World!', event.ui_object_id)
                 print(event)
                 if event.ui_object_id == '#inv_window.#close_button' \
-                        or event.ui_object_id == '#inv_window.close_button':
+                        or event.ui_object_id.endswith('close_button'):
                     game_mode = "game"
                     if ui_alchemizer_win != None:
                         ui_alchemizer_win.win.kill()
                         ui_alchemizer_win = None
                     if ui_main != None:
-                        ui_main.win.kill()
+                        ui_main.close()
                         ui_main = None
                     if ui_city_win != None:
-                        ui_city_win.win.kill()
+                        ui_city_win.close()
                         ui_city_win = None
-                if event.ui_object_id == '#inv_window.#accept_delivery':
-                    print("#accept_delivery")
+                if event.ui_object_id == '#inv_window.#delivery':
+                    print("#delivery")
                     ui_city_win.press_delivery_btn(obj_man)
+                if event.ui_object_id == '#inv_window.#accept_quest':
+                    print("#accept_quest")
+                    ui_city_win.press_accept_btn(obj_man)
                 if event.ui_object_id == '#inv_window.#craft_beer':
                     print("craft")
                     res = attempt_combination(
@@ -480,6 +370,12 @@ async def main():
 
             ui_manager.process_events(event)
         ui_manager.update(dt)
+        completed, next_level = check_level_completion(
+            alchemy_quests, current_level)
+        if completed:
+            print("completed, next:", next_level)
+            pg.time.set_timer(pg.event.Event(
+                CHANGE_GAME_MODE, mode='next_level', next_level=next_level), 10, 1)
 
         pressed = pg.key.get_pressed()
 
@@ -508,12 +404,19 @@ async def main():
             txt = big_font.render(f"{GAME_TITLE}", True, WHITE)
             screen.blit(txt, (WIDTH/2 - txt.get_width()/2, 10))
         ui_manager.draw_ui(screen)
+        if not game_mode in ["game_over", "main_menu"]:
+            obj_man.draw_hud(screen, 20, 10)
+        if DEV_MODE:
+            fps = 1.0/dt
+            draw_fps(screen, fps, std_font, WIDTH)
         pg.display.update()
         await asyncio.sleep(0)
 
     pg.quit()
     exit()
 
+parser = argparse.ArgumentParser(description="Alchemy Game")
+parser.add_argument('--dev', action='store_true', help="Enable developer mode")
+args = parser.parse_args()
 
-# if __name__ == "__main__":
-asyncio.run(main())
+asyncio.run(main(args.dev))

@@ -1,8 +1,12 @@
+
 alchemy_quests = {
     'level_1': {
+        'max_elements': 3,
         'locations': [
             {
                 'name': 'Mudville',
+                'welcome':"Welcome to Mudville, the home of mud lovers! Our village is famous for its Mud Festival, muddy marshes, and cozy mud-brick houses. Join us in our muddy adventures and help keep Mudville the muddiest place around!",
+
                 'quests': [
                     {
                         'title': 'Mud for the Mud Festival',
@@ -23,6 +27,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Smoke Valley',
+                'welcome': "Welcome to Smoke Valley, where the air is filled with the scent of smoke. We take pride in our Great Smoke Signal ceremony, the delicious BBQ Festival, and our unique smoke screen defense system. Join us and become a part of the smoky atmosphere!",
                 'quests': [
                     {
                         'title': 'The Great Smoke Signal',
@@ -43,6 +48,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Steamtown',
+                'welcome': "Welcome to Steamtown, the city powered by steam! Our steam engine, saunas, and steam-powered clock tower are the pride of our town. Lend a hand in maintaining our steampunk paradise and help us keep the steam flowing!",
                 'quests': [
                     {
                         'title': 'Powering the Steam Engine',
@@ -64,9 +70,11 @@ alchemy_quests = {
         ]
     },
     'level_2': {
+        'max_elements': 4,
         'locations': [
             {
                 'name': 'Lava Island',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Heating the Lava Pools',
@@ -87,6 +95,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Mistwood',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Mystical Mist',
@@ -107,6 +116,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Dust Valley',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'The Dusty Road',
@@ -128,9 +138,11 @@ alchemy_quests = {
         ]
     },
     'level_3': {
+        'max_elements': 5,
         'locations': [
             {
                 'name': 'Rust Harbor',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Rusting the Anchors',
@@ -151,6 +163,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Charcoal Village',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Charcoal Drawings',
@@ -171,6 +184,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Glowstone Caverns',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Glowstone Caverns Lighting',
@@ -192,9 +206,11 @@ alchemy_quests = {
         ]
     },
     'level_4': {
+        'max_elements': 9,
         'locations': [
             {
                 'name': 'Laser City',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Laser City Laser Tag Arena',
@@ -215,6 +231,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Thunderstorm Bay',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Thunderstorm Bay Lighthouse',
@@ -235,6 +252,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Frostpeak Village',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Frostpeak Village Ice Sculpture Contest',
@@ -256,9 +274,11 @@ alchemy_quests = {
         ]
     },
     'level_5': {
+        'max_elements': 9,
         'locations': [
             {
                 'name': 'Electro City',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Electrostatic Field Generator',
@@ -279,6 +299,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Shady Grove',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Shadow Puppet Theater',
@@ -299,6 +320,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Swamplandia',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Swamplandia Boardwalk Expansion',
@@ -320,9 +342,11 @@ alchemy_quests = {
         ]
     },
     'level_6': {
+        'max_elements': 9,
         'locations': [
             {
                 'name': 'Geyser Springs',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Geothermal Energy Research',
@@ -343,6 +367,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Brickton',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Brickton Construction Project',
@@ -363,6 +388,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Final Challenge Island',
+                'welcome': "",
                 'quests': [
                     {
                         'title': 'Elemental Balance',
@@ -399,3 +425,31 @@ def can_fulfill_quest(inventory, quest_requirements):
         if inventory.get(material, 0) < required_amount:
             return False
     return True
+
+
+def force_level_completion(alchemy_quests, current_level):
+    level = alchemy_quests[current_level]
+    level_complete = True
+
+    for location in level['locations']:
+        for quest in location['quests']:
+            quest['done']=True
+
+def check_level_completion(alchemy_quests, current_level):
+    level = alchemy_quests[current_level]
+    level_complete = True
+
+    for location in level['locations']:
+        for quest in location['quests']:
+            if not quest.get('done', False):
+                level_complete = False
+                break
+
+    if level_complete:
+        next_level = f'level_{int(current_level.split("_")[1]) + 1}'
+        if next_level in alchemy_quests:
+            return (True, next_level)
+        else:
+            return (True, None)
+    else:
+        return (False, None)

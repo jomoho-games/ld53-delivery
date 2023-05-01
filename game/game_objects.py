@@ -6,13 +6,33 @@ import bisect
 import random
 from .alchemy import *
 from .colors import *
+from .physics import *
+from .quests import *
 
 MAX_VEL = 300
-
+TRACTOR_DISTANCE = 60
+COLLECT_DISTANCE=30
 NUM_ELEMENTS = len(alchemy_game_data['elements'])
 
 
-def init_obj(t, x, y, sprites):
+def colorize(image, newColor):
+    """
+    Create a "colorized" copy of a surface (replaces RGB values with the given color, preserving the per-pixel alphas of
+    original).
+    :param image: Surface to create a colorized copy of
+    :param newColor: RGB color to use (original alpha values are preserved)
+    :return: New colorized Surface instance
+    """
+    image = image.copy()
+
+    # zero out RGB values
+    image.fill((0, 0, 0, 255), None, pygame.BLEND_RGBA_MULT)
+    # add in new RGB values
+    image.fill(newColor[0:3] + (0,), None, pygame.BLEND_RGBA_ADD)
+
+    return image
+
+def init_obj(t, x, y, sprites, level):
     if t == "ship":
         s = random.randint(25, 50)
         obj = GameObject(pygame.transform.scale(sprites.get_sprite(
@@ -25,6 +45,15 @@ def init_obj(t, x, y, sprites):
         obj.velocity *= random.randint(5, 50)
         obj.damage = random.randint(5, 15)
 
+    if t == "player_ghost":
+        s = max(TRACTOR_DISTANCE, COLLECT_DISTANCE)*2
+        obj = GameObject(pygame.transform.scale(sprites.get_sprite(
+            "ships", 0),  (s, s)), x, y, t=t)
+        obj.static = False
+        obj.resting = False
+        obj.interact = False
+        obj.velocity = vec(0,0)
+
     if t == "clump":
         i = random.randint(0, 120)
         s = random.randint(15, 30)
@@ -34,20 +63,23 @@ def init_obj(t, x, y, sprites):
         obj.resting = True
         obj.angle = random.randint(0, 360)
         obj.element = random.randint(0, NUM_ELEMENTS)
+        obj.element_amount = random.randint(5, 20)
 
     if t == "element":
         i = random.randint(0, 120)
-        s = random.randint(15, 30)
+        s = random.randint(8, 10)
         obj = GameObject(pygame.transform.scale(
-            sprites.get_sprite("clumps", i), (s, s)), x, y, t=t)
+            sprites.get_sprite("clumps", i), (10, 10)), x, y, t=t)
+        max_element_for_level = min(NUM_ELEMENTS-1,alchemy_quests[level]['max_elements'] )
+        obj.element = alchemy_game_data['elements'][random.randint(0, max_element_for_level)]
+        obj.image = colorize(obj.image, element_colors[ obj.element])
         obj.static = False
         obj.resting = False
-        obj.angle = random.randint(0, 360)
-        obj.element = random.randint(0, NUM_ELEMENTS)
+        obj.amount = random.randint(1, 10)
 
     if t == "city" or t == "alchemizer":
         city_sprites = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                        16, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+                        16, 17, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
         i = city_sprites[random.randint(0, len(city_sprites)-1)]
         if t == "alchemizer":
             i = 19
@@ -62,8 +94,8 @@ def init_obj(t, x, y, sprites):
     return obj
 
 
-def init_city(city, sprites, location, city_id):
-    obj = init_obj("city", city['pos'].x, city['pos'].y, sprites)
+def init_city(city, sprites, location, city_id, level):
+    obj = init_obj("city", city['pos'].x, city['pos'].y, sprites, level)
     obj.name = location['name']
     obj.quests = location['quests']
     obj.city_id = city_id
@@ -71,8 +103,8 @@ def init_city(city, sprites, location, city_id):
     return obj
 
 
-def init_alchemizer(city, sprites, location):
-    obj = init_obj("alchemizer", city['pos'].x, city['pos'].y, sprites)
+def init_alchemizer(city, sprites, location, level):
+    obj = init_obj("alchemizer", city['pos'].x, city['pos'].y, sprites, level)
     obj.name = "Alchemizer"
 
     return obj
@@ -107,6 +139,7 @@ class GameObject(pygame.sprite.Sprite):
         self.speed = 0
         self.angle = 0
         self.damage = 0
+        self.interact = True
         self.city_timeout = 0
 
         # self.mass = 1.0
@@ -250,3 +283,65 @@ def populate_id_indices(objects):
 
 def get_obj(key, objects, id_indices):
     return objects[id_indices[key]]
+
+
+def update_objects_in_view_rect(objects, view_rect, dt, id_indices):
+    index = 0
+    start_index = max(0, find_first_object_greater_than_x(objects, view_rect.left) - 400)
+
+    while index < len(objects):
+        obj = objects[index]
+
+        if obj._destroy:
+            # Remove the object and update the id_indices dictionary
+            objects.pop(index)
+            if obj.id in id_indices:
+                del id_indices[obj.id]
+                for other_id, other_index in id_indices.items():
+                    if other_index > index:
+                        id_indices[other_id] = other_index - 1
+            continue
+
+        # Check if any of the object's four corners are within the camera rect
+        corners = [
+            (obj.rect.left, obj.rect.top),
+            (obj.rect.right, obj.rect.top),
+            (obj.rect.left, obj.rect.bottom),
+            (obj.rect.right, obj.rect.bottom),
+        ]
+
+        is_in_view = False
+        for corner_x, corner_y in corners:
+            if view_rect.collidepoint(corner_x, corner_y):
+                is_in_view = True
+                break
+
+        # Update the object's position only if it's in the view rect
+        if (not obj.resting and not obj._updated) and is_in_view:
+            # Remove the object from the sorted list
+            old_index = index
+            objects.pop(index)
+
+            # Update the object's position
+            obj.update(dt)
+            obj._updated = True
+
+            # Find the position where the object should be inserted
+            new_index = bisect.bisect_right(objects, obj)
+
+            # Insert the object at the new position
+            objects.insert(new_index, obj)
+
+            # Update id_indices dictionary if the object has an id
+            if obj.id is not None:
+                id_indices[obj.id] = new_index
+
+            # Update the indices of objects with IDs
+            for other_id, other_index in id_indices.items():
+                if other_id != obj.id:
+                    if new_index <= other_index < old_index:
+                        id_indices[other_id] = other_index + 1
+                    elif old_index < other_index <= new_index:
+                        id_indices[other_id] = other_index - 1
+        else:
+            index += 1
