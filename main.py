@@ -44,6 +44,8 @@ ui_manager.preload_fonts([
     {'name': 'SHPinscher', 'point_size': 16, 'style': 'bold'},
     {'name': 'SHPinscher', 'point_size': 20, 'style': 'regular'},
     {'name': 'SHPinscher', 'point_size': 20, 'style': 'bold'},
+    {'name': 'SHPinscher', 'point_size': 30, 'style': 'regular'},
+    {'name': 'SHPinscher', 'point_size': 30, 'style': 'bold'},
 
 ])
 

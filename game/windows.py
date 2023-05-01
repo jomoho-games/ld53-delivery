@@ -109,7 +109,7 @@ class CityWin:
                                        container=self.win,
                                        text="Choose a delivery",
                                        )
-        self.text_output_box = gui.UITextBox(f"<font size=20>{self.city['name']}</font>\n<br>{self.city['welcome']}",
+        self.text_output_box = gui.UITextBox(f'<font face="norwester" color="#ffffff" size=30>{self.city["name"]}</font>\n<br>{self.city["welcome"]}',
                                              pg.Rect(400, 50, 500, h-200),
                                              container=self.win)
 
@@ -165,7 +165,7 @@ class CityWin:
         for k,v in q['required'].items():
           obj_man.inventory[k] -= v
         self.refresh_quest_list()
-        self.text_output_box.set_text(f"<font size=20>{self.city['name']}</font>\n<br>{self.city['welcome']}",)
+        self.text_output_box.set_text(f'<font face="norwester" color="#ffffff" size=30>{self.city["name"]}</font>\n<br>{self.city["welcome"]}',)
         self.delivery_btn.hide()
 
     def press_accept_btn(self, obj_man):
@@ -183,7 +183,7 @@ class CityWin:
         # "<font size=20>Title Text</font>\n<br><br> Description etc.<br> requirements: 2 gold, 5 fish"
         q = self.city["quests"][id]
 
-        req = "\n\nRequired:\n"
+        req = "\n<font color='#ffffff'>Required:</font>\n"
         for r, v in q['required'].items():
             req += f'{r}: {v} \n'
         stat = "Accept Delivery to Start working on it"
@@ -200,7 +200,7 @@ class CityWin:
                 self.delivery_btn.show()
 
         self.text_output_box.set_text(
-            f'<font size=20>{q["title"]}</font>\n{q["description"]}<br>{req}\nStatus:\n{stat}')
+            f'<font face="norwester" color="#ffffff" size=30>{q["title"]}</font>\n\n{q["description"]}\n{req}\n<font color="#ffffff">Status:</font>\n{stat}')
 
 
     def update_input(self):
