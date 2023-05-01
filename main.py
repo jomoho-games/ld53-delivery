@@ -276,9 +276,11 @@ async def main(dev_mode=False):
                     ui_city_win = CityWin(obj_man.cities[event.city],
                                           obj_man, ui_manager, WIDTH, HEIGHT)
 
-            if (event.type == pg.MOUSEBUTTONDOWN or event.type == pg.KEYDOWN )and game_mode=="startup":
+            if (event.type == pg.MOUSEBUTTONDOWN or event.type == pg.KEYDOWN) \
+                    and game_mode == "startup":
+                pg.event.post(pg.event.Event(FADEOUT,  time=0.4))
                 pg.time.set_timer(pg.event.Event(
-                    CHANGE_GAME_MODE, mode='main_menu'), 10, 1)
+                    CHANGE_GAME_MODE, mode='main_menu'), 400, 1)
             if DEV_MODE:
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
@@ -417,6 +419,12 @@ async def main(dev_mode=False):
             txt = big_font.render(f"Press a Key!", True, WHITE)
             screen.blit(txt, (WIDTH/2 - txt.get_width()/2, HEIGHT-200))
         ui_manager.draw_ui(screen)
+        if obj_man.fadeout < obj_man.fadeout_time:  # no player
+            prg = 255 * min(1.0, obj_man.fadeout/obj_man.fadeout_time)
+            draw_rect_alpha(screen, (BG_COLOR[0], BG_COLOR[1], BG_COLOR[2], prg), pg.Rect(
+                0, 0, WIDTH, HEIGHT))
+            obj_man.fadeout += dt
+
         if not game_mode in ["game_over", "main_menu"]:
             obj_man.draw_hud(screen, 20, 10)
         if DEV_MODE:

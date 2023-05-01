@@ -71,8 +71,8 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
         player_ghost: GameObject = obj_man.element_objects[obj_man.element_indices["player_ghost"]]
     if player != None and player_ghost != None:
         player_ghost.rect.center = player.rect.center
-    else:
-        print("FLASE")
+    # else:
+    #     print("FLASE")
 
     # Clear the screen
     screen.fill(BG_COLOR)
@@ -142,11 +142,7 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             pg.time.set_timer(pg.event.Event(
                 CHANGE_GAME_MODE, mode='game_over'), int(2*1000), 1)
 
-    if obj_man.fadeout < obj_man.fadeout_time:  # no player
-        prg = 255 * min(1.0, obj_man.fadeout/obj_man.fadeout_time)
-        draw_rect_alpha(screen, (BG_COLOR[0], BG_COLOR[1], BG_COLOR[2], prg), pg.Rect(
-            0, 0, WIDTH, HEIGHT))
-        obj_man.fadeout += dt
+
 
     update_objects(obj_man.objects, dt, obj_man.id_indices)
 
