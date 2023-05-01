@@ -236,8 +236,7 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
                         if not other.element in obj_man.inventory:
                             obj_man.inventory[other.element] = 0
                         obj_man.inventory[other.element] += other.amount
-                        print("collect")
-                        # TODO COLLECT
+                        # print("collect")
 
     if player != None:
         p = vec(player.rect.center)-vec(cam_rect.topleft)

@@ -51,6 +51,7 @@ sprites = SpritesheetManager()
 sprites.load_spritesheet("ships", "assets/sheets/sheet01.json")
 sprites.load_spritesheet("points", "assets/sheets/sheet_nice_large.json")
 sprites.load_spritesheet("clumps", "assets/sheets/sheet_clumps.json")
+sprites.load_spritesheet("elements", "assets/sheets/sheet_elements.json")
 
 std_font = pg.font.Font("assets/fonts/SHPinscher-Regular.otf", 16)
 big_font = pg.font.Font('assets/fonts/norwester.otf', 40)
@@ -64,11 +65,15 @@ BORDER = pg.Rect(WIDTH//2 - 5, 0, 10, HEIGHT)
 # BULLET_FIRE_SOUND = pg.mixer.Sound('Assets/Gun+Silencer.mp3')
 
 
+TITLE = pg.transform.scale(pg.image.load(
+    os.path.join('assets', 'space3_title.png')), (WIDTH, HEIGHT))
+
 BG = pg.transform.scale(pg.image.load(
     os.path.join('assets', 'space3.png')), (WIDTH, HEIGHT))
 
 
 START_GAME_MODE = "main_menu"
+START_GAME_MODE = "startup"
 image_manager = ImageManager()
 
 DEV_MODE = False
@@ -271,6 +276,9 @@ async def main(dev_mode=False):
                     ui_city_win = CityWin(obj_man.cities[event.city],
                                           obj_man, ui_manager, WIDTH, HEIGHT)
 
+            if (event.type == pg.MOUSEBUTTONDOWN or event.type == pg.KEYDOWN )and game_mode=="startup":
+                pg.time.set_timer(pg.event.Event(
+                    CHANGE_GAME_MODE, mode='main_menu'), 10, 1)
             if DEV_MODE:
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
@@ -402,6 +410,12 @@ async def main(dev_mode=False):
             screen.blit(BG, (0, 0))
             txt = big_font.render(f"{GAME_TITLE}", True, WHITE)
             screen.blit(txt, (WIDTH/2 - txt.get_width()/2, 10))
+        if game_mode == "startup":
+            # Clear the screen
+            screen.fill(BG_COLOR)
+            screen.blit(TITLE, (0, 0))
+            txt = big_font.render(f"Press a Key!", True, WHITE)
+            screen.blit(txt, (WIDTH/2 - txt.get_width()/2, HEIGHT-200))
         ui_manager.draw_ui(screen)
         if not game_mode in ["game_over", "main_menu"]:
             obj_man.draw_hud(screen, 20, 10)

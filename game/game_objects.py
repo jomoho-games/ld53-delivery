@@ -69,7 +69,7 @@ def init_obj(t, x, y, sprites, level):
         i = random.randint(0, 120)
         s = random.randint(8, 10)
         obj = GameObject(pygame.transform.scale(
-            sprites.get_sprite("clumps", i), (10, 10)), x, y, t=t)
+            sprites.get_sprite("elements", i), (10, 10)), x, y, t=t)
         max_element_for_level = min(NUM_ELEMENTS-1,alchemy_quests[level]['max_elements'] )
         obj.element = alchemy_game_data['elements'][random.randint(0, max_element_for_level)]
         obj.image = colorize(obj.image, element_colors[ obj.element])
