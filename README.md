@@ -1,4 +1,5 @@
 # LD53 Delivery - Delivery Alchemist!
+
 ![Delivery Alchemist](assets/space3_title.png)
 
 Get ready to embark on a thrilling journey through the cosmos in Delivery Alchemist, a unique game that masterfully combines space exploration, alchemy puzzles, and an element of discovery. As the universe's most skilled Delivery Alchemist, you've been entrusted with a vital mission: to explore distant planets, unlock hidden secrets, and deliver rare and valuable elements to the many civilizations that inhabit the cosmos.
@@ -12,7 +13,6 @@ Key Features:
 * Develop your abilities: Unlock new skills and knowledge as you progress through the game, enhancing your alchemical expertise and delivery prowess.
 
 Embark on a cosmic adventure like no other and become the Delivery Alchemist the universe desperately needs. Are you ready to accept the challenge and chart your course through the stars?
-
 
 # Postmortem Jam Version May 1st 2023
 
@@ -33,10 +33,11 @@ I will try to explain what I did what worked well and what didn't and give an ov
 * **Random Generation** Using Randomness as usual works well to create a variety of content that seems interesting. Pythons randon library is excellent. Nothing new here!
 
 ## What didn't go so well?
+
 * **pygbag** I planned to release the game using pygbag, which allows for pygame games to run in the browser, I didn't test the pygame_gui lib though, which somehow doesn't work.
 * **Midjourney prompting** While Midjourney creates amazing beautiful pictures it is sometimes impossible to generate exactly what you want. In this case I wanted to have a top down post apocalyptic steampunk world, but ended up having to use the space sprites, as they were more usable.
-* **Sound** Didn't do anything here I created some music using [abundant-music](), which haven't made it into the game as of yet. I might spend an hour or two on my windows computer to get sounds for everything and also music, but so far no sound.
-* **collision detection** As usual rolling your own collision detectiona and resolution whithin a weekend doesn't work so well, I have tried and failed before, so no surprises here. I abstained from using box2 or pymunk because I wanted to use pygbag to publish and they didn't work. but in retrospect, that could have saved a lot of time and also made the game probly more fun.
+* **Sound** Didn't do anything here I created some music using [abundant-music](https://pernyblom.github.io/abundant-music/), which haven't made it into the game as of yet. I might spend an hour or two on my windows computer to get sounds for everything and also music, but so far no sound.
+* **collision detection** As usual rolling your own collision detection and resolution whithin a weekend doesn't work so well, I have tried and failed before, so no surprises here. I abstained from using box2 or `pymunk` because I wanted to use `pygbag` to publish and they didn't work. but in retrospect, that could have saved a lot of time and also made the game probly more fun.
 * **fun** As usual fun is the most elusive variable to chase after and I understand now that it can take quite some time to tweak a game to the point  where it is fun, so no surprises here.
 
 
@@ -113,33 +114,52 @@ Some cool things I did with the help of ChatGPT:
 
 MidJourney was used to create spritesheets, which were then processed with a tool called [sprite-cow](https://github.com/jakearchibald/sprite-cow). This resulted in:
 these spritesheets:
+
 ### Locations
+
 **prompt**: `icons ,checkpoints, sprites for SNES space game, atlas, spritesheet, spriteatlas pixelart SNES, --ar 16:9`
 ![Locations](assets/sheets/sheet_nice.png)
 ### Ships
+
 **prompt**: `spaceship and weapon systems, sprites for SNES game, atlas, spritesheet, spriteatlas pixelart SNES, --ar 16:9`
 ![Ships](assets/sheets/sheet01.png)
+### debris
+
+**prompt**: `space stations, city checkpoints, sprites for SNES game, atlas, spritesheet, spriteatlas pixelart SNES`
+
+I used photopea to desaturate the ships and used this as debris and sace junk, not very pretty but it works ok for now.
+![debris](assets/sheets/sheet03_desat.png)
 
 ## What didnt work:
+
 In my original visionI tried to do a more steampunk, post apocalyptic topdown scenario with these prompts:
+
 **prompt**: `top down post apocalyptic steampunk elements and character sprites, sprites for SNES game, atlas, spritesheet, spriteatlas pixelart SNES, empty background`
+
 ![Fail](screens/prompts/jomoho_top_down_post_apocalyptic_steampunk_elements_and_charact_0825271c-99bb-4a72-baad-c44d56c2dff4.png)
+
 **prompt**: `top down topdown::5 post apocalyptic steampunk elements and character sprites, sprites::3 for SNES game, atlas, spritesheet, spriteatlas pixelart SNES, empty background`
 
 ![Fail](screens/prompts/jomoho_top_down_topdown_db9bbf48-ff4c-4809-a4f2-ccfc46237542.png)
 
 And a bunch more I tried:
-```
-top-down::5 perspective elements and character sprites, apocalyptic alchemy, sprites for SNES game, atlas, spritesheet, spriteatlas pixelart SNES, empty background
 
-top-down::5 perspective elements and character sprites, steampunk, post apocalyptic, apocalyptic alchemy, sprites for SNES game, atlas, spritesheet::5, spriteatlas pixelart SNES, empty background
+**prompt**: `top-down::5 perspective elements and character sprites, apocalyptic alchemy, sprites for SNES game, atlas, spritesheet, spriteatlas pixelart SNES, empty background`
+![Fail](screens/prompts/jomoho_top-down_b96ed6db-d32d-4fb0-bbe0-b32d750b55e0.png)
 
-top-down::5 hotline miami style topdown:5 perspective elements and character sprites, steampunk, post apocalyptic, apocalyptic alchemy, sprites for SNES game, atlas, spritesheet::5, spriteatlas pixelart SNES, empty background
+**prompt**: `top-down::5 perspective elements and character sprites, steampunk, post apocalyptic, apocalyptic alchemy, sprites for SNES game, atlas, spritesheet::5, spriteatlas pixelart SNES, empty background`
+![Fail](screens/prompts/jomoho_top-down_62146fb7-1dbf-4108-89dc-9b18c903b5c5.png)
 
-top down 2d game, pixel art, style of hotline miami, top down shooter, post apocalyptic, steampunk, spritesheet:5, sprites:5 (SNES, Game Boy Color) 1991
+**prompt**: `top-down::5 hotline miami style topdown:5 perspective elements and character sprites, steampunk, post apocalyptic, apocalyptic alchemy, sprites for SNES game, atlas, spritesheet::5, spriteatlas pixelart SNES, empty background`
 
-top down 2d game, pixel art, style of GTA 1, topdown::% shooter, spritesheet:5, sprite sheet, sprites:5 (SNES, Game Boy Color) 1995
-```
+![Fail](screens/prompts/jomoho_top-down_2eadaf34-24be-4456-b257-30e25cc99613.png)
+
+
+**prompt**: `top down 2d game, pixel art, style of hotline miami, top down shooter, post apocalyptic, steampunk, spritesheet:5, sprites:5 (SNES, Game Boy Color) 1991`
+![Fail](screens/prompts/jomoho_top_down_2d_game_pixel_art_style_of_hotline_miami_top_do_e38e4c72-7951-46a9-95aa-1a4ca6143d3d.png)
+
+**prompt**: `top down 2d game, pixel art, style of GTA 1, topdown::% shooter, spritesheet:5, sprite sheet, sprites:5 (SNES, Game Boy Color) 1995`
+![Fail](screens/prompts/jomoho_top_down_2d_game_pixel_art_style_of_GTA_1_topdown_30919308-11c0-4d3e-a80c-995c3a1c0fd8.png)
 
 After which I gave up and went back to the space theme as that gave me great spritesheets to work with.
 
