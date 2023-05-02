@@ -2,6 +2,7 @@ from .game_objects import *
 from .physics import *
 from .colors import *
 from .quests import *
+from .map_gen import *
 import pygame as pg
 import math
 
@@ -83,8 +84,11 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             angle = rad2deg * math.atan2(obj.velocity.x, obj.velocity.y)
         if hasattr(obj, 'angle'):
             angle = obj.angle
-        p = (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
+        p = vec(obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
         lp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
+        if obj.t == 'city' or obj.t == 'alchemizer':
+            p *= 0.8
+            lp *= 0.8
         screen.blit(pg.transform.rotate(obj.image, angle), p)
         if debug_collisions:
             pg.draw.line(screen, YELLOW, lp, lp+obj.velocity)
@@ -105,7 +109,7 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
         screen.blit(obj.image, p)
         # pg.draw.circle(screen, element_colors[obj.element], lp, 5)
 
-    for_objects_in_view_rect(obj_man.element_objects, cam_rect, draw_element)
+    for_objects_in_view_rect(obj_man.element_objects, pg.Rect(cam_rect.x-WIDTH/2, cam_rect.y-HEIGHT/2, WIDTH*2, HEIGHT*2), draw_element)
     update_objects(
         obj_man.element_objects, dt, obj_man.element_indices)
     # update_objects_in_view_rect(
@@ -168,8 +172,12 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             contact = Contact(obj1, obj2, normal)
             contact.obj_man = obj_man
 
-            obj1.on_collision(obj2, contact)
-            obj2.on_collision(obj1, contact)
+            if obj1.interact and obj2.interact:
+                obj1.on_collision(obj2, contact)
+                obj2.on_collision(obj1, contact)
+            elif obj1.trigger or obj2.trigger:
+                obj1.on_trigger(obj2, contact)
+                obj2.on_trigger(obj1, contact)
 
             if debug_collisions:
                 r1 = pg.Rect(obj1.rect.x-cam_rect.x, obj1.rect.y -
@@ -259,6 +267,8 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
                 txt, (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y))
 
     if debug_collisions:
+        map_srf = draw_debug_locations(obj_man.cities, WIDTH/2, HEIGHT/2, obj_man.map_rect)
+        screen.blit(map_srf, (50, 50))
         txt = big_font.render(
             f"obj:{len(obj_man.objects)} pairs:{len(potential_pairs)} coll: {coll_count} coll_pp: {coll_count_pp}", True, GREEN)
         screen.blit(txt, (0, 0))

@@ -105,8 +105,11 @@ class ObjManager:
 
         city_count = len(locations)
         print("gen_random_locations...")
-        self.cities = generate_random_locations(city_count+3, pg.Rect(
-            MAP_LEFT, MAP_TOP, MAP_WIDTH, MAP_HEIGHT), WIDTH, WIDTH*5)
+        self.map_rect = pg.Rect(MAP_LEFT, MAP_TOP, MAP_WIDTH, MAP_HEIGHT)
+        self.cities = generate_random_locations(
+            city_count+3, self.map_rect, WIDTH, WIDTH*5)
+
+        self.map_rect = expand_rect_if_needed(self.map_rect, self.cities)
         print("done")
         self.city_objs = [init_city(city, sprites, locations[i], i, self.level)
                           for i, city in enumerate(self.cities[:city_count])]
@@ -150,6 +153,7 @@ class ObjManager:
         self.element_indices = populate_id_indices(self.element_objects)
 
         self.reset_progress()
+
         self.sprites = sprites
 
     def reset_progress(self):
