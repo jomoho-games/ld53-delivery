@@ -72,6 +72,7 @@ TITLE = pg.transform.scale(pg.image.load(
 
 BG = pg.transform.scale(pg.image.load(
     os.path.join('assets', 'space3.png')), (WIDTH, HEIGHT))
+STARS = pg.image.load('assets/starfield.png')
 
 
 START_GAME_MODE = "main_menu"
@@ -155,6 +156,7 @@ class ObjManager:
         self.reset_progress()
 
         self.sprites = sprites
+        self.STARS = STARS
 
     def reset_progress(self):
         self.inventory = {
@@ -217,10 +219,10 @@ async def main(dev_mode, start_mode, start_level):
     game_mode = START_GAME_MODE
     current_level = LEVEL
 
-    if start_mode !=None:
-        game_mode= start_mode
-    if start_level !=None:
-        current_level= start_level
+    if start_mode != None:
+        game_mode = start_mode
+    if start_level != None:
+        current_level = start_level
     obj_man = ObjManager(current_level)
 
     ui_alchemizer_win = AlchemizerWin(
@@ -449,8 +451,10 @@ async def main(dev_mode, start_mode, start_level):
 
 parser = argparse.ArgumentParser(description="Alchemy Game")
 parser.add_argument('--dev', action='store_true', help="Enable developer mode")
-parser.add_argument('--start_mode', type=str, default=None, required=False, help="start game mode")
-parser.add_argument('--start_level', type=str, default=None, required=False, help="start specific level")
+parser.add_argument('--start_mode', type=str, default=None,
+                    required=False, help="start game mode")
+parser.add_argument('--start_level', type=str, default=None,
+                    required=False, help="start specific level")
 args = parser.parse_args()
 
 asyncio.run(main(args.dev, args.start_mode, args.start_level))

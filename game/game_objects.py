@@ -295,7 +295,7 @@ def get_obj(key, objects, id_indices):
 
 def update_objects_in_view_rect(objects, view_rect, dt, id_indices):
     index = 0
-    start_index = max(0, find_first_object_greater_than_x(objects, view_rect.left) - 400)
+    start_index = max(0, find_first_object_greater_than_x(objects, view_rect.left) - 100)
 
     while index < len(objects):
         obj = objects[index]
@@ -351,5 +351,7 @@ def update_objects_in_view_rect(objects, view_rect, dt, id_indices):
                         id_indices[other_id] = other_index + 1
                     elif old_index < other_index <= new_index:
                         id_indices[other_id] = other_index - 1
+                    else:
+                        print("no update for:", other_id)
         else:
             index += 1
