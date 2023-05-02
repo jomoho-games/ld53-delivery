@@ -78,7 +78,22 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
     # Clear the screen
     screen.fill(BG_COLOR)
 
+    def draw_cities(obj):
+        if not obj.t == 'city' and not obj.t == 'alchemizer':
+            return
+        angle = 0
+        p = vec(obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
+        lp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
+        p *= 0.8
+        lp *= 0.8
+        screen.blit(pg.transform.rotate(obj.image, angle), p)
+        if hasattr(obj, 'name_txt'):
+            screen.blit(obj.name_txt, lp +
+                        vec(- obj.name_txt.get_width()/2, -30))
+
     def draw_object(obj):
+        if obj.t == 'city' or obj.t == 'alchemizer':
+            return
         angle = 0
         if not obj.resting and not obj.static:
             angle = rad2deg * math.atan2(obj.velocity.x, obj.velocity.y)
@@ -86,9 +101,7 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             angle = obj.angle
         p = vec(obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
         lp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
-        if obj.t == 'city' or obj.t == 'alchemizer':
-            p *= 0.8
-            lp *= 0.8
+
         screen.blit(pg.transform.rotate(obj.image, angle), p)
         if debug_collisions:
             pg.draw.line(screen, YELLOW, lp, lp+obj.velocity)
@@ -109,16 +122,18 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
         screen.blit(obj.image, p)
         # pg.draw.circle(screen, element_colors[obj.element], lp, 5)
 
-    for_objects_in_view_rect(obj_man.element_objects, pg.Rect(cam_rect.x-WIDTH/2, cam_rect.y-HEIGHT/2, WIDTH*2, HEIGHT*2), draw_element)
-    update_objects(
-        obj_man.element_objects, dt, obj_man.element_indices)
-    # update_objects_in_view_rect(
-    #     obj_man.element_objects, cam_rect, dt, obj_man.element_indices)
+    for_objects_in_view_rect(obj_man.element_objects, cam_rect, draw_element)
+    # update_objects(obj_man.element_objects, dt, obj_man.element_indices)
+    update_objects_in_view_rect(
+        obj_man.element_objects, cam_rect, dt, obj_man.element_indices)
     # WE EED TO UPDATE the ghost after index change
     if 'player_ghost' in obj_man.element_indices:
         player_ghost: GameObject = obj_man.element_objects[obj_man.element_indices["player_ghost"]]
 
     # Draw game objects
+    for_objects_in_view_rect(obj_man.objects, pg.Rect(
+        cam_rect.x-WIDTH/2, cam_rect.y-HEIGHT/2, WIDTH*2, HEIGHT*2), draw_cities)
+
     for_objects_in_view_rect(obj_man.objects, cam_rect, draw_object)
     if player != None:
         for c in obj_man.cities:
@@ -145,8 +160,6 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             pg.event.post(pg.event.Event(FADEOUT,  time=2))
             pg.time.set_timer(pg.event.Event(
                 CHANGE_GAME_MODE, mode='game_over'), int(2*1000), 1)
-
-
 
     update_objects(obj_man.objects, dt, obj_man.id_indices)
 
@@ -267,7 +280,8 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
                 txt, (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y))
 
     if debug_collisions:
-        map_srf = draw_debug_locations(obj_man.cities, WIDTH/2, HEIGHT/2, obj_man.map_rect)
+        map_srf = draw_debug_locations(
+            obj_man.cities, WIDTH/2, HEIGHT/2, obj_man.map_rect)
         screen.blit(map_srf, (50, 50))
         txt = big_font.render(
             f"obj:{len(obj_man.objects)} pairs:{len(potential_pairs)} coll: {coll_count} coll_pp: {coll_count_pp}", True, GREEN)

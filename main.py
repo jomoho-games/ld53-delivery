@@ -211,11 +211,16 @@ class ObjManager:
         screen.blit(txt, (x, y))
 
 
-async def main(dev_mode=False):
+async def main(dev_mode, start_mode, start_level):
     global DEV_MODE
     DEV_MODE = dev_mode
     game_mode = START_GAME_MODE
     current_level = LEVEL
+
+    if start_mode !=None:
+        game_mode= start_mode
+    if start_level !=None:
+        current_level= start_level
     obj_man = ObjManager(current_level)
 
     ui_alchemizer_win = AlchemizerWin(
@@ -444,6 +449,8 @@ async def main(dev_mode=False):
 
 parser = argparse.ArgumentParser(description="Alchemy Game")
 parser.add_argument('--dev', action='store_true', help="Enable developer mode")
+parser.add_argument('--start_mode', type=str, default=None, required=False, help="start game mode")
+parser.add_argument('--start_level', type=str, default=None, required=False, help="start specific level")
 args = parser.parse_args()
 
-asyncio.run(main(args.dev))
+asyncio.run(main(args.dev, args.start_mode, args.start_level))
