@@ -33,6 +33,19 @@ def rot_center(image, angle, x, y):
 
     return rotated_image, new_rect
 
+def draw_parallax_layer(screen, cam_rect, image_surface, parallax_factor):
+    image_width, image_height = image_surface.get_size()
+    parallax_x = cam_rect.x * (parallax_factor)
+    parallax_y = cam_rect.y * (parallax_factor)
+
+    start_x = int(parallax_x) % image_width
+    start_y = int(parallax_y) % image_height
+
+    for y in range(-start_y, screen.get_height(), image_height):
+        for x in range(-start_x, screen.get_width(), image_width):
+            screen.blit(image_surface, (x, y))
+
+
 global frame_counter
 frame_counter = 0
 
@@ -83,16 +96,20 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
     # Clear the screen
     screen.fill(BG_COLOR)
 
-    p = vec(cam_rect.topleft)
-    p *= -0.1
-    w, h = obj_man.STARS.get_width(), obj_man.STARS.get_height()
-    screen.blit(obj_man.STARS, (p.x,p.y))
-    if p.x > 0:
-        screen.blit(obj_man.STARS, (p.x-w,p.y))
-        if p.y > 0:
-            screen.blit(obj_man.STARS, (p.x-w,p.y-h))
-    if p.y > 0:
-        screen.blit(obj_man.STARS, (p.x,p.y-h))
+    # p = vec(cam_rect.topleft)
+    # p *= -0.1
+    # w, h = obj_man.STARS.get_width(), obj_man.STARS.get_height()
+    # screen.blit(obj_man.STARS, (p.x,p.y))
+    # if p.x > 0:
+    #     screen.blit(obj_man.STARS, (p.x-w,p.y))
+    #     if p.y > 0:
+    #         screen.blit(obj_man.STARS, (p.x-w,p.y-h))
+    # if p.y > 0:
+    #     screen.blit(obj_man.STARS, (p.x,p.y-h))
+
+
+    # draw_parallax_layer(screen, cam_rect, obj_man.STARS, 0.1)
+    # draw_parallax_layer(screen, cam_rect, obj_man.STARS_1, 0.5)
 
     def draw_cities(obj):
         if not obj.t == 'city' and not obj.t == 'alchemizer':
@@ -160,9 +177,9 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
 
         player_ghost: GameObject = obj_man.element_objects[obj_man.element_indices["player_ghost"]]
         r1 = pg.Rect(player_ghost.rect.x-cam_rect.x, player_ghost.rect.y -cam_rect.y,player_ghost.rect.width, player_ghost.rect.height)
-        if frame_counter % 30 == 0:
-            pg.draw.rect(screen, DYELLOW, r1, width=2)
-            print(player_ghost.rect.x-cam_rect.x, player_ghost.rect.y -cam_rect.y)
+        # if frame_counter % 30 == 0:
+        #     pg.draw.rect(screen, DYELLOW, r1, width=2)
+        #     print(player_ghost.rect.x-cam_rect.x, player_ghost.rect.y -cam_rect.y)
 
     else:
         print("ghost disappeared")
@@ -170,6 +187,9 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
     # Draw game objects
     for_objects_in_view_rect(obj_man.objects, pg.Rect(
         cam_rect.x-WIDTH/2, cam_rect.y-HEIGHT/2, WIDTH*2, HEIGHT*2), draw_cities)
+
+    
+    # draw_parallax_layer(screen, cam_rect, obj_man.STARS_2, 2.5)
 
     for_objects_in_view_rect(obj_man.objects, cam_rect, draw_object)
     if player != None:
@@ -280,9 +300,12 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
                     if dl < COLLECT_DISTANCE:
                         player.can_collect = True
                     if random.random() > 0.5 and frame_counter % 3 == 0:
+
                         r2 = pg.Rect(player_ghost.rect.x-cam_rect.x, player_ghost.rect.y -
                                      cam_rect.y, player_ghost.rect.width, player_ghost.rect.height)
-                        pg.draw.rect(screen, WHITE, r2, width=1)
+
+                        pg.draw.circle(screen, WHITE, r2.center,100, width=1)
+                        # pg.draw.rect(screen, WHITE, r2, width=1)
                     if mouse_pressed[2] and player.can_tractor:
                         print("tractor")
                         # TODO ATTRACT

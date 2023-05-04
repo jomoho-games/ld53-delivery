@@ -223,6 +223,10 @@ intro_msg = """<p><strong>Welcome, brave Alchemist!</strong> In a galaxy filled 
 <b>Good luck, and may the stars guide you!</b></p>"""
 
 
+end_msg=""""<p><strong>Congratulations, intrepid adventurer! </strong> You've triumphed over every challenge that the cosmos could throw at you, and now you stand victorious among the stars. Throughout your journey, you've brought balance to the elements, restored harmony to the galaxy, and made lasting connections with the denizens of each unique space station.</p>
+<p>From the muddy marshes of Mudville to the smoky skies of Smoke Valley, and from the steam-powered wonders of Steamtown to the farthest reaches of the universe, you've left a legacy of courage, determination, and unity. The tales of your deeds will be recounted with awe and admiration for generations to come.</p>
+<p>As you gaze upon the vast expanse of the cosmos, remember the friends you've made, the challenges you've overcome, and the incredible feats you've accomplished. This is your moment, dear adventurer. Bask in the glory of your success, for you have truly conquered the galaxy!</p>"""
+
 class MenuWin:
     def __init__(self, obj_man, ui_manager, WIDTH, HEIGHT):
         w = WIDTH-100
@@ -244,7 +248,9 @@ class MenuWin:
                                           object_id="close_button",
                                           text="Start Game",
                                           )
-
+    def set_text(self, txt):
+        self.text_output_box.set_text(txt)
     def close(self):
         self.win.kill()
         self.text_output_box.kill()
+

@@ -74,7 +74,7 @@ alchemy_quests = {
         'locations': [
             {
                 'name': 'Lava Island',
-                'welcome': "",
+                'welcome': "Welcome to Lava Island, where we're always fired up! Feel the heat, swim in molten waves, and toast marshmallows at our annual volcano ritual. Don't forget your sunscreen - SPF 5000 recommended!",
                 'quests': [
                     {
                         'title': 'Heating the Lava Pools',
@@ -95,7 +95,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Mistwood',
-                'welcome': "",
+                'welcome': "Welcome to Mistwood, the foggiest place you'll ever visit! Find your way through the enchanting haze, relax in our healing sanctuary, and enjoy the mystical ambiance. Umbrellas are optional, but highly encouraged!",
                 'quests': [
                     {
                         'title': 'Mystical Mist',
@@ -116,7 +116,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Dust Valley',
-                'welcome': "",
+                'welcome': "Welcome to Dust Valley, where a little dirt never hurt anyone! Experience our sandy roads, desert agriculture, and wild sandstorm festival. Dust off your shoes and dive into the gritty goodness of our valley!",
                 'quests': [
                     {
                         'title': 'The Dusty Road',
@@ -142,7 +142,7 @@ alchemy_quests = {
         'locations': [
             {
                 'name': 'Rust Harbor',
-                'welcome': "",
+                'welcome': "Welcome to Rust Harbor, where we embrace the beauty of decay! Explore our rusty anchor exhibition, marvel at the iconic Rusty Bridge, and enjoy the finest rust-proof structures in town. Bring your tetanus shots, and let's rustle up some fun!",
                 'quests': [
                     {
                         'title': 'Rusting the Anchors',
@@ -163,7 +163,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Charcoal Village',
-                'welcome': "",
+                'welcome': "Welcome to Charcoal Village, where we make sure every day is a smoky delight! Unleash your inner artist at our charcoal drawing competition, savor delicious BBQ delights, and witness the birth of red-hot creations at our blacksmith's forge. Come on in, and let's get charred!",
                 'quests': [
                     {
                         'title': 'Charcoal Drawings',
@@ -184,7 +184,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Glowstone Caverns',
-                'welcome': "",
+                'welcome': "Welcome to Glowstone Caverns, where we turn darkness into a kaleidoscope of colors! Illuminate your senses with our dazzling Glowstone Caverns tour, immerse yourself in the bioluminescent garden, and bask in the crystal-clear waters. Bring your sunglasses, and let's light up your life!",
                 'quests': [
                     {
                         'title': 'Glowstone Caverns Lighting',
@@ -210,7 +210,7 @@ alchemy_quests = {
         'locations': [
             {
                 'name': 'Laser City',
-                'welcome': "",
+                'welcome': "Welcome to Laser City, where everything is FASTER, BRIGHTER, and LASERIER! Test your agility in our state-of-the-art Laser Tag Arena, contribute to the future of transportation at our Research Lab, and feast your eyes on the greatest light show this side of the universe! Strap on your safety goggles, and let's get LASERIFIC!",
                 'quests': [
                     {
                         'title': 'Laser City Laser Tag Arena',
@@ -231,7 +231,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Thunderstorm Bay',
-                'welcome': "",
+                'welcome': "Welcome to Thunderstorm Bay, where we've got the POWER to electrify your visit! Light up the night at our iconic Lighthouse, rock out at our electrifying concert, and help us keep the city buzzing at our Power Plant. Charge up your energy, and let's bring on the THUNDER!",
                 'quests': [
                     {
                         'title': 'Thunderstorm Bay Lighthouse',
@@ -252,7 +252,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Frostpeak Village',
-                'welcome': "",
+                'welcome': "Welcome to Frostpeak Village, where the temperature may be freezing, but the fun is absolutely SIZZLING! Unleash your inner artist at our ice sculpture contest, carve up the slopes at our ski resort, and chill out at our world-famous Ice Wine Festival. Grab your warmest coat, and let's make some unforgettable FROSTY memories!",
                 'quests': [
                     {
                         'title': 'Frostpeak Village Ice Sculpture Contest',
@@ -278,7 +278,7 @@ alchemy_quests = {
         'locations': [
             {
                 'name': 'Electro City',
-                'welcome': "",
+                'welcome': "Welcome to Electro City, where we're positively CHARGED with excitement! Help us generate some hair-raising fun at our Generator Facility, install lightning rods to keep things electrifying, and assist in the research of shockproof armor. Amp up your enthusiasm, and let's get SHOCKINGLY entertained!",
                 'quests': [
                     {
                         'title': 'Electrostatic Field Generator',
@@ -299,7 +299,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Shady Grove',
-                'welcome': "",
+                'welcome': "Welcome to Shady Grove, where the darkness is your friend and shadows dance in the moonlight! Join our mesmerizing shadow puppet theater, mix up some mysterious shadow tonics for our annual Shadow Festival, and explore the art of darkness illumination. Embrace the shadows, and let's delve into the MYSTERIOUS world of Shady Grove!",
                 'quests': [
                     {
                         'title': 'Shadow Puppet Theater',
@@ -320,7 +320,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Swamplandia',
-                'welcome': "",
+                'welcome': "Welcome to Swamplandia, where things get a little MUCKY, but we wouldn't have it any other way! Join our swampy adventure by expanding the boardwalk, lighting up the night with swampfire lanterns, and pampering yourself at our luxurious mud bath spa. Don your rubber boots, and let's have a SWAMP-TASTIC time!",
                 'quests': [
                     {
                         'title': 'Swamplandia Boardwalk Expansion',
@@ -346,7 +346,7 @@ alchemy_quests = {
         'locations': [
             {
                 'name': 'Geyser Springs',
-                'welcome': "",
+                'welcome':"Welcome to Geyser Springs, where the ground erupts with steaming surprises! Assist us in researching geothermal energy, keep our geyser-powered turbines steaming along, and restore the hot springs of yesteryear. Let's embrace the HEAT and embark on a steamy journey through Geyser Springs!",
                 'quests': [
                     {
                         'title': 'Geothermal Energy Research',
@@ -367,7 +367,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Brickton',
-                'welcome': "",
+                'welcome': "Ah, Brickton, where the buildings stand strong and the memories are cemented. Help us build a robust future by delivering bricks for construction, improving our infrastructure with steel, and adding a touch of elegance with crystal sculptures. Together, let's build a BRICK-TACULAR experience!",
                 'quests': [
                     {
                         'title': 'Brickton Construction Project',
@@ -388,7 +388,7 @@ alchemy_quests = {
             },
             {
                 'name': 'Final Challenge Island',
-                'welcome': "",
+                'welcome': "Welcome to Final Challenge Island, where your elemental mastery will be put to the ultimate test! Restore the balance by delivering elemental materials, cleanse the Purity Fountain, activate the legendary Rainbow Bridge, recharge the Plasma Core, and power the Swampfire Beacon. Let's reminisce over past adventures and face the FINAL challenge!",
                 'quests': [
                     {
                         'title': 'Elemental Balance',
@@ -447,6 +447,7 @@ def check_level_completion(alchemy_quests, current_level):
 
     if level_complete:
         next_level = f'level_{int(current_level.split("_")[1]) + 1}'
+        print("next_levle", next_level)
         if next_level in alchemy_quests:
             return (True, next_level)
         else:

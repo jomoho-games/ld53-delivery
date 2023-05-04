@@ -32,6 +32,9 @@ screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption(GAME_TITLE)
 screen_rect = screen.get_rect()
 cam_rect = pg.Rect(screen_rect)
+audio = AudioManager()
+audio.play_song("song01", "assets/songs/song_20230428_234522_703_audioconvert.ogg")
+audio.play_song("song01")
 
 ui_manager = pygame_gui.UIManager((WIDTH, HEIGHT), 'assets/theme.json')
 ui_manager.add_font_paths("SHPinscher",
@@ -72,7 +75,8 @@ TITLE = pg.transform.scale(pg.image.load(
 
 BG = pg.transform.scale(pg.image.load(
     os.path.join('assets', 'space3.png')), (WIDTH, HEIGHT))
-STARS = pg.image.load('assets/starfield.png')
+STARS = pg.image.load('assets/starfield/starfield_colorful.png')
+STARS_1 = pg.image.load('assets/starfield/starfield_starsonlyl.png')
 
 
 START_GAME_MODE = "main_menu"
@@ -157,6 +161,8 @@ class ObjManager:
 
         self.sprites = sprites
         self.STARS = STARS
+        self.STARS_1 = STARS_1
+        self.STARS_2 = pg.transform.scale2x( STARS_1)
 
     def reset_progress(self):
         self.inventory = {
@@ -265,17 +271,29 @@ async def main(dev_mode, start_mode, start_level):
                 game_mode = event.mode
                 if event.mode == 'next_level':
                     current_level = event.next_level
-                    game_mode = "game"
-                    obj_man = ObjManager(current_level)
-                    if ui_alchemizer_win != None:
-                        ui_alchemizer_win.win.kill()
-                        ui_alchemizer_win = None
-                    if ui_main != None:
-                        ui_main.close()
-                        ui_main = None
-                    if ui_city_win != None:
-                        ui_city_win.close()
-                        ui_city_win = None
+                    if not current_level :
+                        current_level = LEVEL
+                        game_mode = "main_menu"
+                        ui_main= MenuWin(obj_man, ui_manager, WIDTH, HEIGHT)
+                        ui_main.set_text(end_msg)
+                        if ui_alchemizer_win != None:
+                            ui_alchemizer_win.win.kill()
+                            ui_alchemizer_win = None
+                        if ui_city_win != None:
+                            ui_city_win.close()
+                            ui_city_win = None
+                    else:
+                        game_mode = "game"
+                        obj_man = ObjManager(current_level)
+                        if ui_alchemizer_win != None:
+                            ui_alchemizer_win.win.kill()
+                            ui_alchemizer_win = None
+                        if ui_main != None:
+                            ui_main.close()
+                            ui_main = None
+                        if ui_city_win != None:
+                            ui_city_win.close()
+                            ui_city_win = None
                 if event.mode == 'game_over':
                     pg.time.set_timer(pg.event.Event(
                         CHANGE_GAME_MODE, mode='main_menu'), 3*1000, 1)
