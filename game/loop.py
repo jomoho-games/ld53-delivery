@@ -333,6 +333,14 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             obj.tag = ""
             screen.blit(
                 txt, (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y))
+    if pressed[pg.K_TAB]:
+        map_srf = draw_map(obj_man.cities, WIDTH/2, HEIGHT/2, obj_man.map_rect)
+        p = vec(player.rect.center)-vec(obj_man.map_rect.topleft)
+        ratio = (WIDTH/2)/obj_man.map_rect.width
+        p *= ratio
+        pg.draw.circle(map_srf, WHITE, p, 5)
+        screen.blit(map_srf, (int(WIDTH*0.25), int(HEIGHT*0.25)))
+        
 
     if debug_collisions:
         map_srf = draw_debug_locations(

@@ -3,11 +3,11 @@ import pygame as pg
 from pygame.math import Vector2 as vec
 import os
 import asyncio
-import pygame_gui
-import pygame_gui.elements as gui
+import my_pygame_gui
+import my_pygame_gui.elements as gui
 import math
 from game import *
-from pygame_gui.core import ObjectID
+from my_pygame_gui.core import ObjectID
 from collections import OrderedDict
 
 print(pg.version)
@@ -17,7 +17,7 @@ pg.font.init()
 pg.mixer.init()
 
 WIDTH, HEIGHT = 1280, 720
-mul = 7
+mul = 5
 
 MAP_LEFT = int(WIDTH*-mul)
 MAP_TOP = int(HEIGHT*-mul)
@@ -36,7 +36,7 @@ audio = AudioManager()
 audio.play_song("song01", "assets/songs/song_20230428_234522_703_audioconvert.ogg")
 audio.play_song("song01")
 
-ui_manager = pygame_gui.UIManager((WIDTH, HEIGHT), 'assets/theme.json')
+ui_manager = my_pygame_gui.UIManager((WIDTH, HEIGHT), 'assets/theme.json')
 ui_manager.add_font_paths("SHPinscher",
                           "assets/fonts/SHPinscher-Regular.otf",)
 ui_manager.add_font_paths("norwester",
@@ -61,7 +61,7 @@ sprites.load_spritesheet("elements", "assets/sheets/sheet_elements.json")
 std_font = pg.font.Font("assets/fonts/SHPinscher-Regular.otf", 16)
 big_font = pg.font.Font('assets/fonts/norwester.otf', 40)
 
-GAME_OBJECT_COUNT = 12000
+GAME_OBJECT_COUNT = 6000
 LEVEL = 'level_1'
 
 BORDER = pg.Rect(WIDTH//2 - 5, 0, 10, HEIGHT)
@@ -90,31 +90,36 @@ class ObjManager:
     def __init__(self, level):
         print("POP")
         self.level = level
-        self.objects = [init_obj("ship", random.randint(MAP_LEFT, MAP_RIGHT), random.randint(
-            MAP_TOP, MAP_BOTTOM), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/6))]
-
-        self.objects.extend([init_obj("clump", random.randint(MAP_LEFT, MAP_RIGHT), random.randint(
-            MAP_TOP, MAP_BOTTOM), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/4))])
-
-        self.element_objects = []
-        self.element_indices = {}
-
-        self.element_objects.extend([init_obj("element", random.randint(MAP_LEFT, MAP_RIGHT), random.randint(
-            MAP_TOP, MAP_BOTTOM), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/5))])
-
-        self.element_objects[0] = init_obj(
-            "player_ghost", 0, 0,  sprites, self.level)
-        self.element_objects[0].id = "player_ghost"
 
         locations = alchemy_quests[self.level]["locations"]
 
         city_count = len(locations)
         print("gen_random_locations...")
-        self.map_rect = pg.Rect(MAP_LEFT, MAP_TOP, MAP_WIDTH, MAP_HEIGHT)
+        self.map_rect :pg.Rect = pg.Rect(MAP_LEFT, MAP_TOP, MAP_WIDTH, MAP_HEIGHT)
         self.cities = generate_random_locations(
-            city_count+3, self.map_rect, WIDTH, WIDTH*5)
+            city_count+3, self.map_rect, MAP_WIDTH/(3*mul), MAP_WIDTH/mul)
 
         self.map_rect = expand_rect_if_needed(self.map_rect, self.cities)
+
+
+
+        self.objects = [init_obj("ship", random.randint(self.map_rect.left, self.map_rect.right), random.randint(
+            self.map_rect.top, self.map_rect.bottom), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/6))]
+
+        self.objects.extend([init_obj("clump", random.randint(self.map_rect.left, self.map_rect.right), random.randint(
+            self.map_rect.top, self.map_rect.bottom), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/4))])
+
+        self.element_objects = []
+        self.element_indices = {}
+
+        self.element_objects.extend([init_obj("element", random.randint(self.map_rect.left, self.map_rect.right), random.randint(
+            self.map_rect.top, self.map_rect.bottom), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/5))])
+
+        self.element_objects[0] = init_obj(
+            "player_ghost", 0, 0,  sprites, self.level)
+        self.element_objects[0].id = "player_ghost"
+
+        
         print("done")
         self.city_objs = [init_city(city, sprites, locations[i], i, self.level)
                           for i, city in enumerate(self.cities[:city_count])]
@@ -342,7 +347,7 @@ async def main(dev_mode, start_mode, start_level):
                     if event.key == pg.K_END:
                         force_level_completion(alchemy_quests, current_level)
 
-            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+            if event.type == my_pygame_gui.UI_BUTTON_PRESSED:
                 # if event.ui_element == hello_button1:
                 print('Hello World!', event.ui_object_id)
                 print(event)
@@ -467,12 +472,13 @@ async def main(dev_mode, start_mode, start_level):
     pg.quit()
     exit()
 
-parser = argparse.ArgumentParser(description="Alchemy Game")
-parser.add_argument('--dev', action='store_true', help="Enable developer mode")
-parser.add_argument('--start_mode', type=str, default=None,
-                    required=False, help="start game mode")
-parser.add_argument('--start_level', type=str, default=None,
-                    required=False, help="start specific level")
-args = parser.parse_args()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Alchemy Game")
+    parser.add_argument('--dev', action='store_true', help="Enable developer mode")
+    parser.add_argument('--start_mode', type=str, default=None,
+                        required=False, help="start game mode")
+    parser.add_argument('--start_level', type=str, default=None,
+                        required=False, help="start specific level")
+    args = parser.parse_args()
 
-asyncio.run(main(args.dev, args.start_mode, args.start_level))
+    asyncio.run(main(args.dev, args.start_mode, args.start_level))

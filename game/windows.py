@@ -2,10 +2,10 @@ import pygame as pg
 from pygame.math import Vector2 as vec
 import os
 import asyncio
-import pygame_gui
-import pygame_gui.elements as gui
+import my_pygame_gui
+import my_pygame_gui.elements as gui
 import math
-from pygame_gui.core import ObjectID
+from my_pygame_gui.core import ObjectID
 from .quests import *
 
 
@@ -48,13 +48,13 @@ class AlchemizerWin:
                                        container=self.win,
                                        text="Run the alchemizer using input elements",
                                        )
-        self.craft_btn = gui.ui_button.UIButton(pg.Rect(w/2+50, h-120, 200, 50),
+        self.craft_btn = gui.UIButton(pg.Rect(w/2+50, h-120, 200, 50),
                                                 manager=ui_manager,
                                                 container=self.win,
                                                 text="Run Alchemizer",
                                                 object_id="#craft_beer",
                                                 )
-        self.close_btn = gui.ui_button.UIButton(pg.Rect(w-200, h-120, 120, 50),
+        self.close_btn = gui.UIButton(pg.Rect(w-200, h-120, 120, 50),
                                                 manager=ui_manager,
                                                 container=self.win,
                                                 object_id="close_button",
@@ -113,21 +113,21 @@ class CityWin:
                                              pg.Rect(400, 50, 500, h-200),
                                              container=self.win)
 
-        self.accept_btn = gui.ui_button.UIButton(pg.Rect(400, h-120, 200, 50),
+        self.accept_btn = gui.UIButton(pg.Rect(400, h-120, 200, 50),
                                                  manager=ui_manager,
                                                  container=self.win,
                                                  text="Accept!",
                                                  object_id="#accept_quest",
                                                  )
         self.accept_btn.hide()
-        self.delivery_btn = gui.ui_button.UIButton(pg.Rect(400, h-120, 200, 50),
+        self.delivery_btn = gui.UIButton(pg.Rect(400, h-120, 200, 50),
                                                    manager=ui_manager,
                                                    container=self.win,
                                                    text="FULFILL DELIVERY!",
                                                    object_id="#delivery",
                                                    )
         self.delivery_btn.hide()
-        self.close_btn = gui.ui_button.UIButton(pg.Rect(w-250, h-120, 200, 50),
+        self.close_btn = gui.UIButton(pg.Rect(w-250, h-120, 200, 50),
                                                 manager=ui_manager,
                                                 container=self.win,
                                                 object_id="close_button",
@@ -242,7 +242,7 @@ class MenuWin:
                                              object_id="#intro_text",
                                              )
 
-        self.win = gui.ui_button.UIButton(pg.Rect(WIDTH/2-100, HEIGHT-100, 200, 50),
+        self.win = gui.UIButton(pg.Rect(WIDTH/2-100, HEIGHT-100, 200, 50),
                                           manager=ui_manager,
                                           # container=self.win,
                                           object_id="close_button",

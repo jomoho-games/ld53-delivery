@@ -107,6 +107,25 @@ def draw_debug_locations(locations, target_width, target_height, map_rect):
 
     return surface
 
+def draw_map(locations, target_width, target_height, map_rect):
+    scale_x = target_width / map_rect.width
+    scale_y = target_height / map_rect.height
+    scale = min(scale_x, scale_y)
+
+    surface = pygame.Surface((target_width, target_height), pygame.SRCALPHA)
+    # surface.set_alpha(0)
+    # surface.fill((255, 255, 255))
+
+    for location in locations:
+        pos = location['pos'] - pygame.Vector2(map_rect.topleft)
+        pos.x *= scale
+        pos.y *= scale
+        radius = location['radius'] * scale
+        pygame.draw.circle(surface, (90, 230, 205, 96), (pos.x, pos.y), radius-20)
+        pygame.draw.circle(surface, (255, 205, 64, 200), (pos.x, pos.y),  max(20,radius/3))
+
+    return surface
+
 
 
 def place_elements_on_map(num_elements, element_spread, locations):
