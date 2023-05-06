@@ -3,11 +3,11 @@ import pygame as pg
 from pygame.math import Vector2 as vec
 import os
 import asyncio
-import my_pygame_gui
-import my_pygame_gui.elements as gui
+import pygame_gui
+import pygame_gui.elements as gui
 import math
 from game import *
-from my_pygame_gui.core import ObjectID
+from pygame_gui.core import ObjectID
 from collections import OrderedDict
 
 print(pg.version)
@@ -36,7 +36,7 @@ audio = AudioManager()
 audio.play_song("song01", "assets/songs/song_20230428_234522_703_audioconvert.ogg")
 audio.play_song("song01")
 
-ui_manager = my_pygame_gui.UIManager((WIDTH, HEIGHT), 'assets/theme.json')
+ui_manager = pygame_gui.UIManager((WIDTH, HEIGHT), 'assets/theme.json')
 ui_manager.add_font_paths("SHPinscher",
                           "assets/fonts/SHPinscher-Regular.otf",)
 ui_manager.add_font_paths("norwester",
@@ -66,8 +66,8 @@ LEVEL = 'level_1'
 
 BORDER = pg.Rect(WIDTH//2 - 5, 0, 10, HEIGHT)
 
-# BULLET_HIT_SOUND = pg.mixer.Sound('Assets/Grenade+1.mp3')
-# BULLET_FIRE_SOUND = pg.mixer.Sound('Assets/Gun+Silencer.mp3')
+# BULLET_HIT_SOUND = pg.mixer.Sound('assets/Grenade+1.mp3')
+# BULLET_FIRE_SOUND = pg.mixer.Sound('assets/Gun+Silencer.mp3')
 
 
 TITLE = pg.transform.scale(pg.image.load(
@@ -224,7 +224,7 @@ class ObjManager:
         screen.blit(txt, (x, y))
 
 
-async def main(dev_mode, start_mode, start_level):
+async def main(dev_mode=None, start_mode=None, start_level=None):
     global DEV_MODE
     DEV_MODE = dev_mode
     game_mode = START_GAME_MODE
@@ -236,6 +236,9 @@ async def main(dev_mode, start_mode, start_level):
         current_level = start_level
     obj_man = ObjManager(current_level)
 
+    ui_alchemizer_win = None
+    ui_city_win = None
+    ui_main = None
     ui_alchemizer_win = AlchemizerWin(
         obj_man, ui_manager, WIDTH, HEIGHT)
     if game_mode != "alchemizer":
@@ -335,8 +338,8 @@ async def main(dev_mode, start_mode, start_level):
                         obj_man = ObjManager(current_level)
                     if event.key == pg.K_p:
                         compare_slice_performance(objects, cam_rect)
-                    if event.key == pg.K_t:
-                        call_timing(objects, cam_rect)
+                    # if event.key == pg.K_t:
+                    #     call_timing(objects, cam_rect)
                     if event.key == pg.K_c:
                         debug_collisions = not debug_collisions
 
@@ -347,7 +350,7 @@ async def main(dev_mode, start_mode, start_level):
                     if event.key == pg.K_END:
                         force_level_completion(alchemy_quests, current_level)
 
-            if event.type == my_pygame_gui.UI_BUTTON_PRESSED:
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 # if event.ui_element == hello_button1:
                 print('Hello World!', event.ui_object_id)
                 print(event)
@@ -482,3 +485,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     asyncio.run(main(args.dev, args.start_mode, args.start_level))
+    
+# asyncio.run(main())
