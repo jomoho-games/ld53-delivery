@@ -33,7 +33,8 @@ pg.display.set_caption(GAME_TITLE)
 screen_rect = screen.get_rect()
 cam_rect = pg.Rect(screen_rect)
 audio = AudioManager()
-audio.play_song("song01", "assets/songs/song_20230428_234522_703_audioconvert.ogg")
+audio.play_song(
+    "song01", "assets/songs/song_20230428_234522_703_audioconvert.ogg")
 audio.play_song("song01")
 
 ui_manager = pygame_gui.UIManager((WIDTH, HEIGHT), 'assets/theme.json')
@@ -95,13 +96,12 @@ class ObjManager:
 
         city_count = len(locations)
         print("gen_random_locations...")
-        self.map_rect :pg.Rect = pg.Rect(MAP_LEFT, MAP_TOP, MAP_WIDTH, MAP_HEIGHT)
+        self.map_rect: pg.Rect = pg.Rect(
+            MAP_LEFT, MAP_TOP, MAP_WIDTH, MAP_HEIGHT)
         self.cities = generate_random_locations(
             city_count+3, self.map_rect, MAP_WIDTH/(3*mul), MAP_WIDTH/mul)
 
         self.map_rect = expand_rect_if_needed(self.map_rect, self.cities)
-
-
 
         self.objects = [init_obj("ship", random.randint(self.map_rect.left, self.map_rect.right), random.randint(
             self.map_rect.top, self.map_rect.bottom), sprites, self.level) for _ in range(int(GAME_OBJECT_COUNT/6))]
@@ -119,7 +119,6 @@ class ObjManager:
             "player_ghost", 0, 0,  sprites, self.level)
         self.element_objects[0].id = "player_ghost"
 
-        
         print("done")
         self.city_objs = [init_city(city, sprites, locations[i], i, self.level)
                           for i, city in enumerate(self.cities[:city_count])]
@@ -167,7 +166,7 @@ class ObjManager:
         self.sprites = sprites
         self.STARS = STARS
         self.STARS_1 = STARS_1
-        self.STARS_2 = pg.transform.scale2x( STARS_1)
+        self.STARS_2 = pg.transform.scale2x(STARS_1)
 
     def reset_progress(self):
         self.inventory = {
@@ -279,10 +278,10 @@ async def main(dev_mode=None, start_mode=None, start_level=None):
                 game_mode = event.mode
                 if event.mode == 'next_level':
                     current_level = event.next_level
-                    if not current_level :
+                    if not current_level:
                         current_level = LEVEL
                         game_mode = "main_menu"
-                        ui_main= MenuWin(obj_man, ui_manager, WIDTH, HEIGHT)
+                        ui_main = MenuWin(obj_man, ui_manager, WIDTH, HEIGHT)
                         ui_main.set_text(end_msg)
                         if ui_alchemizer_win != None:
                             ui_alchemizer_win.win.kill()
@@ -477,7 +476,8 @@ async def main(dev_mode=None, start_mode=None, start_level=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Alchemy Game")
-    parser.add_argument('--dev', action='store_true', help="Enable developer mode")
+    parser.add_argument('--dev', action='store_true',
+                        help="Enable developer mode")
     parser.add_argument('--start_mode', type=str, default=None,
                         required=False, help="start game mode")
     parser.add_argument('--start_level', type=str, default=None,
@@ -485,5 +485,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     asyncio.run(main(args.dev, args.start_mode, args.start_level))
-    
+
 # asyncio.run(main())

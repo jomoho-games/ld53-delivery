@@ -8,7 +8,6 @@ from .alchemy import *
 from .colors import *
 from .physics import *
 from .quests import *
-
 MAX_VEL = 300
 TRACTOR_DISTANCE = 60
 COLLECT_DISTANCE=30
@@ -122,6 +121,7 @@ class GameObject(pygame.sprite.Sprite):
         self.image = image
         self.mask = pygame.mask.from_surface(image, threshold=16)
         self.rect = self.image.get_rect()
+        self.pos = vec(x,y)
         self.rect.x = x
         self.rect.y = y
         self.resting = True
@@ -151,16 +151,22 @@ class GameObject(pygame.sprite.Sprite):
     def get_health_percentage(self):
         return self.health/self.max_health
 
-    def update(self, dt):
+    def update(self, dt, frame_counter):
         if (self.id == 'player'):
             self.city_timeout -= dt
+        
         self.clamp_velocity()
+
         if self.static:
             self.velocity = vec(0, 0)
 
         if not self.resting:
-            self.rect.x += self.velocity.x*dt
-            self.rect.y += self.velocity.y*dt
+            # if frame_counter % 30 == 0 and self.id=='player':
+            #     print(f"{self.id} ({self.rect.x},{self.rect.y}),({self.velocity.x},{self.velocity.y}), ")
+            self.pos += self.velocity * dt
+            self.rect.x =self.pos.x
+            self.rect.y =self.pos.y
+
             self._collided = False
 
     def on_trigger(self, other, contact=None):
@@ -198,14 +204,16 @@ class GameObject(pygame.sprite.Sprite):
             #   print(l,r,t,b)
             if min(l, r) < min(t, b):
                 if l > r:
-                    self.rect.x += r
+                    self.pos.x += r
                 else:
-                    self.rect.x -= l
+                    self.pos.x -= l
             else:
                 if t > b:
-                    self.rect.y += b
+                    self.pos.y += b
                 else:
-                    self.rect.y -= t
+                    self.pos.y -= t
+            self.rect.x = self.pos.x
+            self.rect.y = self.pos.y
             p = vec(self.rect.center)
             o = vec(other.rect.center)
             d = o-p
@@ -235,7 +243,7 @@ class GameObject(pygame.sprite.Sprite):
         return f"GameObject({self.id}, x={self.rect.x}, y={self.rect.y}, w={self.rect.width}, {self.resting}, v={self.velocity} )"
 
 
-def update_objects(objects, dt, id_indices):
+def update_objects(objects, dt, id_indices, frame_counter):
     index = 0
     [obj.ready() for obj in objects]
     while index < len(objects):
@@ -256,7 +264,7 @@ def update_objects(objects, dt, id_indices):
             objects.pop(index)
 
             # Update the object's position
-            obj.update(dt)
+            obj.update(dt,  frame_counter)
             obj._updated = True
 
             # Find the position where the object should be inserted

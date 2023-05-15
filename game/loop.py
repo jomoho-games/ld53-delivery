@@ -115,13 +115,13 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
         if not obj.t == 'city' and not obj.t == 'alchemizer':
             return
         angle = 0
-        p = vec(obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
-        lp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
-        p *= 0.8
-        lp *= 0.8
-        screen.blit(pg.transform.rotate(obj.image, angle), p)
+        cp = vec(obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y)
+        clp = vec(obj.rect.centerx-cam_rect.x, obj.rect.centery-cam_rect.y)
+        cp *= 0.8
+        clp *= 0.8
+        screen.blit(pg.transform.rotate(obj.image, angle), cp)
         if hasattr(obj, 'name_txt'):
-            screen.blit(obj.name_txt, lp +
+            screen.blit(obj.name_txt, clp +
                         vec(- obj.name_txt.get_width()/2, -30))
 
     def draw_object(obj):
@@ -168,7 +168,10 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
         # pg.draw.circle(screen, element_colors[obj.element], lp, 5)
 
     for_objects_in_view_rect(obj_man.element_objects, cam_rect, draw_element)
-    update_objects(obj_man.element_objects, dt, obj_man.element_indices)
+    
+    update_objects(obj_man.element_objects, dt, obj_man.element_indices,frame_counter)
+    
+    
     # #TODO: this is not working properly fixit!
     # update_objects_in_view_rect(
     #     obj_man.element_objects, cam_rect, dt, obj_man.element_indices)
@@ -192,6 +195,7 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
     # draw_parallax_layer(screen, cam_rect, obj_man.STARS_2, 2.5)
 
     for_objects_in_view_rect(obj_man.objects, cam_rect, draw_object)
+
     if player != None:
         for c in obj_man.cities:
             cp = c['pos']-vec(cam_rect.topleft)
@@ -218,7 +222,7 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             pg.time.set_timer(pg.event.Event(
                 CHANGE_GAME_MODE, mode='game_over'), int(2*1000), 1)
 
-    update_objects(obj_man.objects, dt, obj_man.id_indices)
+    update_objects(obj_man.objects, dt, obj_man.id_indices, frame_counter)
 
     # Perform Sweep and Prune
     potential_pairs = sweep_and_prune(
@@ -333,6 +337,7 @@ def core_loop(screen, dt, pressed, cam_rect, obj_man, std_font, big_font, WIDTH,
             obj.tag = ""
             screen.blit(
                 txt, (obj.rect.x-cam_rect.x, obj.rect.y-cam_rect.y))
+    
     if pressed[pg.K_TAB]:
         map_srf = draw_map(obj_man.cities, WIDTH/2, HEIGHT/2, obj_man.map_rect)
         p = vec(player.rect.center)-vec(obj_man.map_rect.topleft)
